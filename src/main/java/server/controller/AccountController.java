@@ -10,7 +10,7 @@ import com.vk.api.sdk.queries.users.UserField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.servlet.view.RedirectView;
 import server.persistence.AccountRepository;
 import server.model.Account;
 import server.controller.exceptions.UserNotFoundException;
@@ -44,9 +44,10 @@ public class AccountController {
                 () -> new UserNotFoundException(userId));
     }
 
+    //TODO handle exceptions
     @RequestMapping(method = RequestMethod.GET, value = "/registration")
     ResponseEntity<?> registerWithCode(@RequestParam String code) throws ClientException, ApiException {
-
+        //TODO grab data from
         UserAuthResponse authResponse = vk.oauth()
                 .userAuthorizationCodeFlow(
                         6284569,
@@ -60,20 +61,18 @@ public class AccountController {
                 .get(actor)
                 .fields(UserField.PERSONAL)
                 .execute();
-        System.out.println(info);
         Account account = new Account(info.get(0).getFirstName() + info.get(0).getLastName());
-        account.vkId = info.get(0).getId();
-        account.vkToken = actor.getAccessToken();
+        account.setVkId(info.get(0).getId());
+        account.setVkToken(actor.getAccessToken());
         return addAccount(account);
-//        accountRepository.save(account);
     }
 
     @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> addAccount(@RequestBody Account input) {
         Account res = accountRepository.save(input);
-        return accountRepository.findAccountById(res.id).map(
+        return accountRepository.findAccountById(res.getId()).map(
                 account -> {
-                    URI loc = URI.create("http://localhost:8080/user/" + res.id);
+                    URI loc = URI.create("http://localhost:8080/user/" + res.getId());
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
     }

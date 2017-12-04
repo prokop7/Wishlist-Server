@@ -20,8 +20,7 @@ public class Account {
     private String facebookToken;
 
     @OneToMany(mappedBy = "account")
-
-    public List<Wishlist> wishlists = new ArrayList<>();
+    private List<Wishlist> wishlists = new ArrayList<>();
 
     protected Account() {}
 
@@ -47,5 +46,37 @@ public class Account {
 
     public List<Wishlist> getWishlists() {
         return wishlists;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setVkId(int vkId) {
+        this.vkId = vkId;
+    }
+
+    public String getVkToken() {
+        return vkToken;
+    }
+
+    public void setVkToken(String vkToken) {
+        this.vkToken = vkToken;
+    }
+
+    public void setFacebookId(int facebookId) {
+        this.facebookId = facebookId;
+    }
+
+    public String getFacebookToken() {
+        return facebookToken;
+    }
+
+    public void setFacebookToken(String facebookToken) {
+        this.facebookToken = facebookToken;
     }
 }
