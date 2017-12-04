@@ -13,11 +13,12 @@ public class Account {
     @GeneratedValue
     public long id;
 
-    public String username;
-    public String vkId;
-    public String facebookId;
+    private String username;
+    private String vkId;
+    private String facebookId;
 
     @OneToMany(mappedBy = "account")
+
     public List<Wishlist> wishlists = new ArrayList<>();
 
     public Account(String username, String vkId, String facebookId) {
@@ -26,11 +27,10 @@ public class Account {
         this.facebookId = facebookId;
     }
 
+    protected Account() {}
+
     public Account(String username) {
         this.username = username;
-    }
-
-    public Account() {
     }
 
     public long getId() {

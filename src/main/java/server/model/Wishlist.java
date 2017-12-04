@@ -11,22 +11,21 @@ public class Wishlist {
 
     @Id
     @GeneratedValue
-    public long id;
-    public String name;
+    protected long id;
+    protected String name;
 
     @JsonIgnore
     @ManyToOne
-    public Account account;
+    protected Account account;
 
     @OneToMany(mappedBy = "wishlist")
     public List<Item> items = new ArrayList<>();
 
+    protected Wishlist() {}
+
     public Wishlist(String name, Account Account) {
         this.name = name;
         this.account = Account;
-    }
-
-    public Wishlist() {
     }
 
     public String getName() {
