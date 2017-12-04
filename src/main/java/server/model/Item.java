@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 public class Item {
     @Id
     @GeneratedValue
-    public long id;
+    public int id;
     public String description;
 
     @ManyToOne

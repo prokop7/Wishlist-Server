@@ -11,7 +11,7 @@ public class Wishlist {
 
     @Id
     @GeneratedValue
-    public long id;
+    public int id;
     public String name;
 
     @JsonIgnore

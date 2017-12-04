@@ -14,17 +14,14 @@ public class Account {
     public long id;
 
     public String username;
-    public String vkId;
-    public String facebookId;
+    public int vkId;
+    public String vkToken;
+    public int facebookId;
+    public String facebookToken;
+
 
     @OneToMany(mappedBy = "account")
     public List<Wishlist> wishlists = new ArrayList<>();
-
-    public Account(String username, String vkId, String facebookId) {
-        this.username = username;
-        this.vkId = vkId;
-        this.facebookId = facebookId;
-    }
 
     public Account(String username) {
         this.username = username;
@@ -41,11 +38,11 @@ public class Account {
         return username;
     }
 
-    public String getVkId() {
+    public long getVkId() {
         return vkId;
     }
 
-    public String getFacebookId() {
+    public long getFacebookId() {
         return facebookId;
     }
 
