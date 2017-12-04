@@ -11,21 +11,17 @@ import java.util.List;
 public class Account {
     @Id
     @GeneratedValue
-    public long id;
+    private int id;
 
     private String username;
-    private String vkId;
-    private String facebookId;
+    private int vkId;
+    private String vkToken;
+    private int facebookId;
+    private String facebookToken;
 
     @OneToMany(mappedBy = "account")
 
     public List<Wishlist> wishlists = new ArrayList<>();
-
-    public Account(String username, String vkId, String facebookId) {
-        this.username = username;
-        this.vkId = vkId;
-        this.facebookId = facebookId;
-    }
 
     protected Account() {}
 
@@ -41,11 +37,11 @@ public class Account {
         return username;
     }
 
-    public String getVkId() {
+    public long getVkId() {
         return vkId;
     }
 
-    public String getFacebookId() {
+    public long getFacebookId() {
         return facebookId;
     }
 

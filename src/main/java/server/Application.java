@@ -1,5 +1,11 @@
 package server;
 
+import com.google.gson.Gson;
+import com.vk.api.sdk.client.TransportClient;
+import com.vk.api.sdk.client.VkApiClient;
+import com.vk.api.sdk.client.actors.UserActor;
+import com.vk.api.sdk.httpclient.HttpTransportClient;
+import com.vk.api.sdk.objects.UserAuthResponse;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +30,12 @@ public class Application {
     }
 
     @Bean
+    public VkApiClient vkApiClient() {
+        TransportClient transportClient = HttpTransportClient.getInstance();
+        return new VkApiClient(transportClient, new Gson(), 3);
+    }
+
+    @Bean
     CommandLineRunner init(AccountRepository accountRepository,
                            WishlistRepository wishlistRepository,
                            ItemRepository itemRepository) {
@@ -36,7 +48,6 @@ public class Application {
                             wishlistRepository.save(wishlist);
                             itemRepository.save(new Item("Book", wishlist));
                             itemRepository.save(new Item("Car", wishlist));
-
                         });
     }
 

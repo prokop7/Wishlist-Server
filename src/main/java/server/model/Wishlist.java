@@ -11,8 +11,8 @@ public class Wishlist {
 
     @Id
     @GeneratedValue
-    protected long id;
-    protected String name;
+    private long id;
+    private String name;
 
     @JsonIgnore
     @ManyToOne

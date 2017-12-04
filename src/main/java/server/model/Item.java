@@ -12,7 +12,7 @@ public class Item {
 
     @Id
     @GeneratedValue
-    private long id;
+    private int id;
     private String description;
 
     @ManyToOne
