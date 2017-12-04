@@ -9,21 +9,21 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Item {
+
     @Id
     @GeneratedValue
-    public int id;
-    public String description;
+    private int id;
+    private String description;
 
     @ManyToOne
     @JsonIgnore
-    public Wishlist wishlist;
+    private Wishlist wishlist;
+
+    public Item() {}
 
     public Item(String description, Wishlist wishlist) {
         this.description = description;
         this.wishlist = wishlist;
     }
 
-    public Item() {
-
-    }
 }
