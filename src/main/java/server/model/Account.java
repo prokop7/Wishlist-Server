@@ -1,23 +1,26 @@
 package server.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table (name = "Accounts")
 public class Account {
+
     @Id
-    @GeneratedValue
-    private int id;
+    @GeneratedValue(generator="increment")
+    @GenericGenerator(name="increment", strategy="increment")
+    private long id;
 
     private String username;
-    private int vkId;
+    private long vkId;
     private String vkToken;
-    private int facebookId;
+    private long facebookId;
     private String facebookToken;
+    private String photoLink;
 
     @OneToMany(mappedBy = "account")
     private List<Wishlist> wishlists = new ArrayList<>();
@@ -48,10 +51,6 @@ public class Account {
         return wishlists;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -78,5 +77,13 @@ public class Account {
 
     public void setFacebookToken(String facebookToken) {
         this.facebookToken = facebookToken;
+    }
+
+    public void setPhotoLink(String photoLink) {
+        this.photoLink = photoLink;
+    }
+
+    public String getPhotoLink() {
+        return photoLink;
     }
 }

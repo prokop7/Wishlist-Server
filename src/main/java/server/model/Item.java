@@ -13,7 +13,10 @@ public class Item {
     @Id
     @GeneratedValue
     private int id;
+    private String name;
     private String description;
+    private String link;
+    private String price;
 
     @ManyToOne
     @JsonIgnore

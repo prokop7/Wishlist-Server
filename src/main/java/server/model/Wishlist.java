@@ -13,10 +13,12 @@ public class Wishlist {
     @GeneratedValue
     private long id;
     private String name;
+    private short visibility;
+    private List<Account> users;
 
     @JsonIgnore
     @ManyToOne
-    protected Account account;
+    private Account account;
 
     @OneToMany(mappedBy = "wishlist")
     public List<Item> items = new ArrayList<>();
