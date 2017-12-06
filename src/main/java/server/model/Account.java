@@ -1,9 +1,8 @@
 package server.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,11 @@ public class Account {
     private String vkToken;
     private int facebookId;
     private String facebookToken;
+    private String photoLink;
+
+    @JsonIgnore
+    @ManyToMany
+    private List<Account> friends;
 
     @OneToMany(mappedBy = "account")
     private List<Wishlist> wishlists = new ArrayList<>();
@@ -28,7 +32,7 @@ public class Account {
         this.username = username;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -36,11 +40,11 @@ public class Account {
         return username;
     }
 
-    public long getVkId() {
+    public int getVkId() {
         return vkId;
     }
 
-    public long getFacebookId() {
+    public int getFacebookId() {
         return facebookId;
     }
 
@@ -78,5 +82,21 @@ public class Account {
 
     public void setFacebookToken(String facebookToken) {
         this.facebookToken = facebookToken;
+    }
+
+    public String getPhotoLink() {
+        return photoLink;
+    }
+
+    public void setPhotoLink(String photoLink) {
+        this.photoLink = photoLink;
+    }
+
+    public List<Account> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<Account> friends) {
+        this.friends = friends;
     }
 }
