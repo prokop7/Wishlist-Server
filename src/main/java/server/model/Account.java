@@ -1,5 +1,8 @@
 package server.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -7,9 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table (name = "Accounts")
 public class Account {
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator="increment")
+    @GenericGenerator(name="increment", strategy="increment")
     private int id;
 
     private String username;
@@ -50,10 +55,6 @@ public class Account {
 
     public List<Wishlist> getWishlists() {
         return wishlists;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setUsername(String username) {

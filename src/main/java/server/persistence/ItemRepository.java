@@ -6,6 +6,6 @@ import server.model.Item;
 import java.util.List;
 import java.util.Optional;
 
-public interface ItemRepository extends JpaRepository<Item, Long> {
-    Optional<List<Item>> getAllByWishlistId(long wishlist_id);
+public interface ItemRepository extends JpaRepository<Item, Integer> {
+    Optional<List<Item>> getAllByWishlistId(int wishlist_id);
 }

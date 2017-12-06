@@ -1,7 +1,6 @@
 package server.controller;
 
 import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.Actor;
 import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
@@ -15,22 +14,21 @@ import org.springframework.web.bind.annotation.*;
 import server.controller.Parsers.FriendsResponseParser;
 import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
+import server.model.Wishlist;
 import server.persistence.AccountRepository;
-import server.persistence.WishlistRepository;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/user")
 public class AccountController {
-    private final WishlistRepository wishlistRepository;
     private final AccountRepository accountRepository;
     private final VkApiClient vk;
 
     @Autowired
-    public AccountController(WishlistRepository wishlistRepository, AccountRepository accountRepository, VkApiClient vkApiClient) {
-        this.wishlistRepository = wishlistRepository;
+    public AccountController(AccountRepository accountRepository, VkApiClient vkApiClient) {
         this.accountRepository = accountRepository;
         this.vk = vkApiClient;
     }
@@ -99,5 +97,19 @@ public class AccountController {
                     URI loc = URI.create("http://localhost:8080/user/" + res.getId());
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
+    }
+
+    @RequestMapping(method=RequestMethod.GET, value="/{userId}/friends")
+    List<Account> getFriends(@PathVariable int userId) {
+        validateUserId(userId);
+        //TODO: get friends
+        return new ArrayList<Account>();
+    }
+
+    @RequestMapping(method=RequestMethod.GET, value="/{userId}/wishlists")
+    List<Wishlist> getWishlists(@PathVariable int userId) {
+        validateUserId(userId);
+        //TODO: get wishlists for a user
+        return new ArrayList<Wishlist>();
     }
 }

@@ -6,7 +6,9 @@ import server.model.Wishlist;
 import java.util.List;
 import java.util.Optional;
 
-public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
-    Optional<Wishlist> findByAccount_Id(long user_id);
-    List<Wishlist> getAllByAccount_Id(long account_id);
+public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
+    Optional<Wishlist> findByAccount_Id(int wId);
+    Optional<Wishlist> findById(int wId);
+
+    List<Wishlist> getAllByAccount_Id(int userId);
 }
