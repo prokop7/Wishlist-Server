@@ -16,11 +16,11 @@ public class Wishlist {
     private short visibility;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Account> users = new ArrayList<>();
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account account;
 
     @OneToMany(mappedBy = "wishlist")
@@ -39,5 +39,42 @@ public class Wishlist {
 
     public Account getAccount() {
         return account;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVisibility(short visibility) {
+        this.visibility = visibility;
+    }
+
+    public void setUsers(List<Account> users) {
+        this.users = users;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public int getId() {
+
+        return id;
+    }
+
+    public short getVisibility() {
+        return visibility;
+    }
+
+    public List<Account> getUsers() {
+        return users;
+    }
+
+    public List<Item> getItems() {
+        return items;
     }
 }

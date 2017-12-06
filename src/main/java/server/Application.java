@@ -3,13 +3,10 @@ package server;
 import com.google.gson.Gson;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
-import com.vk.api.sdk.objects.UserAuthResponse;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import server.model.Account;
@@ -18,6 +15,7 @@ import server.model.Wishlist;
 import server.persistence.AccountRepository;
 import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
+import server.rest_resources.Mapper;
 
 import java.util.Arrays;
 
@@ -33,6 +31,11 @@ public class Application {
     public VkApiClient vkApiClient() {
         TransportClient transportClient = HttpTransportClient.getInstance();
         return new VkApiClient(transportClient, new Gson(), 3);
+    }
+
+    @Bean
+    public Mapper classMapper(AccountRepository accountRepository) {
+        return new Mapper(accountRepository);
     }
 
     @Bean

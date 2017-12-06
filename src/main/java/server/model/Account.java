@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,11 +25,11 @@ public class Account {
     private String facebookToken;
     private String photoLink;
 
-    @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Account> friends;
 
-    @OneToMany(mappedBy = "account")
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Wishlist> wishlists = new ArrayList<>();
 
     protected Account() {}

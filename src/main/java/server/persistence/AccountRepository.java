@@ -14,3 +14,4 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     Account getAccountByVkId(int vkId);
 }
+
