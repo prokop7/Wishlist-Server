@@ -11,9 +11,12 @@ import server.controller.exceptions.WishlistNotFoundException;
 import server.model.Wishlist;
 import server.persistence.AccountRepository;
 import server.persistence.WishlistRepository;
+import server.resources.Mapper;
+import server.resources.WishlistResource;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -21,19 +24,25 @@ import java.util.List;
 public class WishlistController {
     private final WishlistRepository wishlistRepository;
     private final AccountRepository accountRepository;
+    private Mapper mapper;
 
     @Autowired
     public WishlistController(WishlistRepository wishlistRepository,
-                              AccountRepository accountRepository) {
+                              AccountRepository accountRepository,
+                              Mapper mapper) {
         this.wishlistRepository = wishlistRepository;
         this.accountRepository = accountRepository;
+        this.mapper = mapper;
     }
 
     @RequestMapping(method=RequestMethod.GET)
-    List<Wishlist> getWishlists(@PathVariable int userId) {
+    List<WishlistResource> getWishlists(@PathVariable int userId) {
         validateUserId(userId);
-        //TODO: get wishlists for a user
-        return new ArrayList<Wishlist>();
+        //TODO: get wishlists for a user, change initialization of wishlist
+        List<Wishlist> wishlists = new ArrayList<>();
+        List<WishlistResource> resources = new LinkedList<>();
+        wishlists.forEach(wishlist -> resources.add(new WishlistResource(wishlist)));
+        return resources;
     }
 
     @RequestMapping(method=RequestMethod.POST)

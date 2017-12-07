@@ -2,6 +2,7 @@ package server.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import server.model.Account;
+import server.model.Wishlist;
 import server.persistence.AccountRepository;
 
 public class Mapper {
@@ -20,6 +21,13 @@ public class Mapper {
             return (T) new AccountCommonResource(account);
         return null;
     }
+
+    @SuppressWarnings("unchecked")
+    public WishlistResource map(Wishlist wishlist) {
+        return new WishlistResource(wishlist);
+    }
+
+
 
 //    private Account map(AccountCommonResource resource) {
 //        Account account = accountRepository.getAccountByVkId(resource.getVkId());

@@ -8,19 +8,22 @@ import java.util.List;
 
 public class AccountFullResource extends AccountCommonResource {
     private List<AccountCommonResource> friends = new LinkedList<>();
-    private List<Wishlist> wishlists;
+    private List<WishlistResource> wishlists;
 
     public AccountFullResource(Account account) {
         super(account);
         account.getFriends().forEach(friend -> friends.add(new AccountCommonResource(friend)));
-        wishlists = account.getWishlists();
+        List<Wishlist> list = account.getWishlists();
+        List<WishlistResource> wishlists = new LinkedList<>();
+        list.forEach(wishlist -> wishlists.add(new WishlistResource(wishlist)));
+        this.wishlists = wishlists;
     }
 
     public List<AccountCommonResource> getFriends() {
         return friends;
     }
 
-    public List<Wishlist> getWishlists() {
+    public List<WishlistResource> getWishlists() {
         return wishlists;
     }
 }
