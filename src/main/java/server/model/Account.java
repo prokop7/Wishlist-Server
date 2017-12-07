@@ -3,15 +3,11 @@ package server.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.context.annotation.Lazy;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table (name = "Accounts")
 public class Account {
     @Id
     @GeneratedValue(generator="increment")
@@ -24,6 +20,7 @@ public class Account {
     private int facebookId;
     private String facebookToken;
     private String photoLink;
+    private boolean registered = false;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Account> friends;
@@ -100,5 +97,13 @@ public class Account {
 
     public void setFriends(List<Account> friends) {
         this.friends = friends;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 }

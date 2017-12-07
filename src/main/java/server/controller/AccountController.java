@@ -15,11 +15,13 @@ import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
 import server.model.Wishlist;
 import server.persistence.AccountRepository;
-import server.rest_resources.AccountFullResource;
-import server.rest_resources.Mapper;
+import server.resources.AccountCommonResource;
+import server.resources.AccountFullResource;
+import server.resources.Mapper;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -65,9 +67,11 @@ public class AccountController {
                 .get(actor)
                 .fields(UserField.PHOTO_100)
                 .execute();
+
         Account account = accountRepository.getAccountByVkId(actor.getId()) == null
                 ? new Account(info.get(0).getFirstName() + " " + info.get(0).getLastName())
                 : accountRepository.getAccountByVkId(actor.getId());
+        account.setRegistered(true);
         account.setVkId(info.get(0).getId());
         account.setPhotoLink(info.get(0).getPhoto100());
         account.setVkToken(actor.getAccessToken());
@@ -75,7 +79,7 @@ public class AccountController {
         return addAccount(account);
     }
 
-    void setFriends(UserActor actor, Account account) throws ClientException {
+    private void setFriends(UserActor actor, Account account) throws ClientException {
         String friendsResponse = vk.friends()
                 .get(actor)
                 .unsafeParam("order", "name")
@@ -92,27 +96,31 @@ public class AccountController {
         account.setFriends(friends);
     }
 
-//    @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addAccount(@RequestBody Account input) {
+    private ResponseEntity<?> addAccount(@RequestBody Account input) {
         Account res = accountRepository.save(input);
         return accountRepository.findAccountById(res.getId()).map(
                 account -> {
-                    URI loc = URI.create("http://localhost:8080/user/" + res.getId());
+                    //TODO address from config
+                    URI loc = URI.create("http://10.241.1.87:8080/user/" + res.getId());
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/{userId}/friends")
-    List<Account> getFriends(@PathVariable int userId) {
+    List<AccountCommonResource> getRegistredFriends(@PathVariable int userId) {
         validateUserId(userId);
-        //TODO: get friends
-        return new ArrayList<Account>();
+        List<Account> friends = accountRepository.getRegisteredFriends(userId);
+        List<AccountCommonResource> friendsResource = new LinkedList<>();
+        friends.forEach(friend -> friendsResource.add(new AccountCommonResource(friend)));
+        return friendsResource;
     }
 
-    @RequestMapping(method=RequestMethod.GET, value="/{userId}/wishlists")
-    List<Wishlist> getWishlists(@PathVariable int userId) {
+    @RequestMapping(method=RequestMethod.GET, value="/{userId}/all_friends")
+    List<AccountCommonResource> getAllFriends(@PathVariable int userId) {
         validateUserId(userId);
-        //TODO: get wishlists for a user
-        return new ArrayList<Wishlist>();
+        List<Account> friends = accountRepository.getAllFriends(userId);
+        List<AccountCommonResource> friendsResource = new LinkedList<>();
+        friends.forEach(friend -> friendsResource.add(new AccountCommonResource(friend)));
+        return friendsResource;
     }
 }

@@ -1,10 +1,8 @@
-package server.rest_resources;
+package server.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import server.model.Account;
 import server.persistence.AccountRepository;
-
-import javax.annotation.processing.SupportedAnnotationTypes;
 
 public class Mapper {
     private AccountRepository accountRepository;
@@ -23,9 +21,6 @@ public class Mapper {
         return null;
     }
 
-//    private AccountCommonResource map(Account account) {
-//        return new AccountCommonResource(account);
-//    }
 //    private Account map(AccountCommonResource resource) {
 //        Account account = accountRepository.getAccountByVkId(resource.getVkId());
 //        if (account == null)

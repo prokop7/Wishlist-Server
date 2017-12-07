@@ -13,22 +13,27 @@ import server.persistence.AccountRepository;
 import server.persistence.WishlistRepository;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/user/{userId}/wishlist")
 public class WishlistController {
     private final WishlistRepository wishlistRepository;
-    private final AccountController accountController;
     private final AccountRepository accountRepository;
 
     @Autowired
     public WishlistController(WishlistRepository wishlistRepository,
-                              AccountController accountController,
                               AccountRepository accountRepository) {
         this.wishlistRepository = wishlistRepository;
-        this.accountController = accountController;
         this.accountRepository = accountRepository;
+    }
+
+    @RequestMapping(method=RequestMethod.GET)
+    List<Wishlist> getWishlists(@PathVariable int userId) {
+        validateUserId(userId);
+        //TODO: get wishlists for a user
+        return new ArrayList<Wishlist>();
     }
 
     @RequestMapping(method=RequestMethod.POST)

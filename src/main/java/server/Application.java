@@ -15,7 +15,7 @@ import server.model.Wishlist;
 import server.persistence.AccountRepository;
 import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
-import server.rest_resources.Mapper;
+import server.resources.Mapper;
 
 import java.util.Arrays;
 
@@ -47,6 +47,7 @@ public class Application {
                 .forEach(
                         a -> {
                             Account account = accountRepository.save(new Account(a));
+                            account.setRegistered(true);
                             Wishlist wishlist = new Wishlist("New Year " + a, account);
                             wishlistRepository.save(wishlist);
                             itemRepository.save(new Item("Book", wishlist));

@@ -1,4 +1,4 @@
-package server.rest_resources;
+package server.resources;
 
 import server.model.Account;
 import server.model.Wishlist;

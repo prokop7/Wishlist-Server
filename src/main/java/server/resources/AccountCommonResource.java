@@ -1,4 +1,4 @@
-package server.rest_resources;
+package server.resources;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import server.model.Account;
