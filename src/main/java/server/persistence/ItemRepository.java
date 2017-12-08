@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Integer> {
     Optional<List<Item>> getAllByWishlistId(int wishlist_id);
+
+    Optional<Item> findItemById(int id);
 }

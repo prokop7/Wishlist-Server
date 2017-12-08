@@ -24,8 +24,12 @@ public class Item {
 
     public Item() {}
 
-    public Item(String description, Wishlist wishlist) {
-        this.description = description;
+    public Item(String name){
+        this.name = name;
+    }
+
+    public Item(String name, Wishlist wishlist) {
+        this.name = name;
         this.wishlist = wishlist;
     }
 

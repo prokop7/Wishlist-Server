@@ -8,28 +8,42 @@ import com.vk.api.sdk.objects.UserAuthResponse;
 import com.vk.api.sdk.objects.users.UserXtrCounters;
 import com.vk.api.sdk.queries.users.UserField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import server.controller.Parsers.FriendsResponseParser;
 import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
-import server.model.Wishlist;
 import server.persistence.AccountRepository;
 import server.resources.AccountCommonResource;
 import server.resources.AccountFullResource;
 import server.resources.Mapper;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 @RestController
+@PropertySource({"classpath:server.properties", "classpath:oAuth.properties"})
 @RequestMapping("/user")
 public class AccountController {
     private final AccountRepository accountRepository;
     private final VkApiClient vk;
     private Mapper mapper;
+
+    @Value("${serverUri}")
+    private String serverURI;
+
+    @Value("${vkRedirectUri}")
+    private String vkRedirectUri;
+
+    @Value("${vkClientSecret}")
+    private String vkClientSecret;
+
+    @Value("${vkClientId}")
+    private Integer vkClientId;
 
     @Autowired
     public AccountController(AccountRepository accountRepository, VkApiClient vkApiClient, Mapper mapper) {
@@ -53,12 +67,11 @@ public class AccountController {
     @RequestMapping(method = RequestMethod.GET, value = "/registration")
     @CrossOrigin(origins = "*")
     ResponseEntity<?> registerWithCode(@RequestParam String code) throws ClientException, ApiException {
-        //TODO grab data from config
         UserAuthResponse authResponse = vk.oauth()
                 .userAuthorizationCodeFlow(
-                        6284569,
-                        "kpcK0qaf4kI9dnzTpjOj",
-                        "http://10.241.1.87:8081/user",
+                        vkClientId,
+                        vkClientSecret,
+                        vkRedirectUri,
                         code)
                 .execute();
 
@@ -67,13 +80,7 @@ public class AccountController {
                 .get(actor)
                 .fields(UserField.PHOTO_100)
                 .execute();
-
-        Account account = accountRepository.getAccountByVkId(actor.getId()) == null
-                ? new Account(info.get(0).getFirstName() + " " + info.get(0).getLastName())
-                : accountRepository.getAccountByVkId(actor.getId());
-        account.setRegistered(true);
-        account.setVkId(info.get(0).getId());
-        account.setPhotoLink(info.get(0).getPhoto100());
+        Account account = mapper.map(info.get(0), accountRepository.getAccountByVkId(actor.getId()));
         account.setVkToken(actor.getAccessToken());
         setFriends(actor, account);
         return addAccount(account);
@@ -96,12 +103,12 @@ public class AccountController {
         account.setFriends(friends);
     }
 
-    private ResponseEntity<?> addAccount(@RequestBody Account input) {
+    private ResponseEntity<?> addAccount(Account input) {
         Account res = accountRepository.save(input);
         return accountRepository.findAccountById(res.getId()).map(
                 account -> {
                     //TODO address from config
-                    URI loc = URI.create("http://10.241.1.87:8080/user/" + res.getId());
+                    URI loc = URI.create(String.format("%s/user/%d", serverURI, res.getId()));
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
     }

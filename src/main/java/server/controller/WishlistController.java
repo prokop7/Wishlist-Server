@@ -15,7 +15,6 @@ import server.resources.Mapper;
 import server.resources.WishlistResource;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,29 +34,28 @@ public class WishlistController {
         this.mapper = mapper;
     }
 
-    @RequestMapping(method=RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     List<WishlistResource> getWishlists(@PathVariable int userId) {
         validateUserId(userId);
-        //TODO: get wishlists for a user, change initialization of wishlist
-        List<Wishlist> wishlists = new ArrayList<>();
+        List<Wishlist> wishlists = wishlistRepository.getAllByAccount_Id(userId);
         List<WishlistResource> resources = new LinkedList<>();
         wishlists.forEach(wishlist -> resources.add(new WishlistResource(wishlist)));
         return resources;
     }
 
-    @RequestMapping(method=RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> addWishlist(@PathVariable int userID, @PathVariable Wishlist inputWishlist) {
         validateUserId(userID);
         //TODO: implement adding wishlist
         throw new NotImplementedException();
     }
 
-    @RequestMapping(method=RequestMethod.POST, value="/{wishlistId}/item")
-    ResponseEntity<?> addItem(@PathVariable int userID, @PathVariable int wishlistId) {
-        validateUserId(userID);
+    @RequestMapping(method = RequestMethod.GET, value = "/{wishlistId}")
+    WishlistResource getWishlist(@PathVariable int userId, @PathVariable int wishlistId) {
+        validateUserId(userId);
         validateWishlistId(wishlistId);
-        //TODO: implement adding item to the wishlist
-        throw new NotImplementedException();
+        return mapper.map(wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(
+                () -> new WishlistNotFoundException(wishlistId)));
     }
 
     private void validateWishlistId(int wishlistId) {

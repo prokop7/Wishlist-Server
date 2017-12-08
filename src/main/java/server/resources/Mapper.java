@@ -1,9 +1,14 @@
 package server.resources;
 
+import com.vk.api.sdk.client.actors.UserActor;
+import com.vk.api.sdk.objects.users.UserXtrCounters;
 import org.springframework.beans.factory.annotation.Autowired;
 import server.model.Account;
+import server.model.Item;
 import server.model.Wishlist;
 import server.persistence.AccountRepository;
+
+import java.util.List;
 
 public class Mapper {
     private AccountRepository accountRepository;
@@ -22,11 +27,26 @@ public class Mapper {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public WishlistResource map(Wishlist wishlist) {
         return new WishlistResource(wishlist);
     }
 
+    public Account map(UserXtrCounters info, Account account) {
+        if (account == null)
+            account = new Account(String.format("%s %s", info.getFirstName(), info.getLastName()));
+        account.setVkId(info.getId());
+        account.setPhotoLink(info.getPhoto100());
+        account.setRegistered(true);
+        return account;
+    }
+
+    public Item map(ItemResource itemResource) {
+        Item item = new Item(itemResource.getName());
+        item.setLink(itemResource.getLink());
+        item.setDescription(itemResource.getDescription());
+        item.setPrice(itemResource.getPrice());
+        return item;
+    }
 
 
 //    private Account map(AccountCommonResource resource) {
