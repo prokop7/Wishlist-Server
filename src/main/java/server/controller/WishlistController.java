@@ -2,10 +2,7 @@ package server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import server.controller.exceptions.UserNotFoundException;
 import server.controller.exceptions.WishlistNotFoundException;
 import server.model.Wishlist;
@@ -44,7 +41,7 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addWishlist(@PathVariable int userID, @PathVariable Wishlist inputWishlist) {
+    ResponseEntity<?> addWishlist(@PathVariable int userID, @RequestBody WishlistResource wishlistResource) {
         validateUserId(userID);
         //TODO: implement adding wishlist
         throw new NotImplementedException();

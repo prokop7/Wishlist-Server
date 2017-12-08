@@ -1,14 +1,19 @@
 package server.resources;
 
+import org.hibernate.validator.constraints.NotBlank;
 import server.model.Item;
 
 public class ItemResource {
+    private int id;
+
+    @NotBlank(message = "Name must not be blank!")
     private String name;
     private String description;
     private String price;
     private String link;
 
     public ItemResource(Item item) {
+        this.id = item.getId();
         this.name = item.getName();
         this.description = item.getDescription();
         this.price = item.getPrice();
@@ -32,5 +37,9 @@ public class ItemResource {
 
     public String getLink() {
         return link;
+    }
+
+    public int getId() {
+        return id;
     }
 }

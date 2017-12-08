@@ -48,6 +48,10 @@ public class Mapper {
         return item;
     }
 
+    public ItemResource map(Item item) {
+        return new ItemResource(item);
+    }
+
 
 //    private Account map(AccountCommonResource resource) {
 //        Account account = accountRepository.getAccountByVkId(resource.getVkId());

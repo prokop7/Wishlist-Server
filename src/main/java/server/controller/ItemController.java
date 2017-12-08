@@ -4,9 +4,13 @@ package server.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import server.controller.exceptions.UserNotFoundException;
+import server.controller.exceptions.ValidationError;
+import server.controller.exceptions.ValidationErrorBuilder;
 import server.controller.exceptions.WishlistNotFoundException;
 import server.model.Item;
 import server.persistence.AccountRepository;
@@ -15,6 +19,7 @@ import server.persistence.WishlistRepository;
 import server.resources.ItemResource;
 import server.resources.Mapper;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 @RestController
@@ -41,10 +46,10 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addItem(@PathVariable int userID,
+    ResponseEntity<?> addItem(@PathVariable int userId,
                               @PathVariable int wishlistId,
-                              @RequestBody ItemResource itemResource) {
-        validateUserId(userID);
+                              @Valid @RequestBody ItemResource itemResource) {
+        validateUserId(userId);
         validateWishlistId(wishlistId);
         Item item = mapper.map(itemResource);
         item.setWishlist(wishlistRepository.getOne(wishlistId));
@@ -54,11 +59,21 @@ public class ItemController {
                     //TODO address from config
                     URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
                             serverURI,
-                            userID,
+                            userId,
                             wishlistId,
                             res.getId()));
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{itemId}")
+    ItemResource findItem(@PathVariable int userId,
+                          @PathVariable int wishlistId,
+                          @PathVariable int itemId) {
+        validateUserId(userId);
+        validateWishlistId(wishlistId);
+        return mapper.map(itemRepository.findByIdAndWishlistIdAnAndAccountId(itemId, wishlistId, userId).orElseThrow(
+                () -> new WishlistNotFoundException(wishlistId)));
     }
 
 
@@ -70,5 +85,15 @@ public class ItemController {
     private void validateUserId(int userId) {
         this.accountRepository.findAccountById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ValidationError handleException(MethodArgumentNotValidException exception) {
+        return createValidationError(exception);
+    }
+
+    private ValidationError createValidationError(MethodArgumentNotValidException e) {
+        return ValidationErrorBuilder.fromBindingErrors(e.getBindingResult());
     }
 }
