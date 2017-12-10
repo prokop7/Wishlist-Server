@@ -3,14 +3,11 @@ package server.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table (name = "Accounts")
 public class Account {
     @Id
     @GeneratedValue(generator="increment")
@@ -18,17 +15,18 @@ public class Account {
     private int id;
 
     private String username;
-    private int vkId;
+    private int vkId = -1;
     private String vkToken;
-    private int facebookId;
+    private int facebookId = -1;
     private String facebookToken;
     private String photoLink;
+    private boolean registered = false;
 
-    @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Account> friends;
 
-    @OneToMany(mappedBy = "account")
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Wishlist> wishlists = new ArrayList<>();
 
     protected Account() {}
@@ -99,5 +97,13 @@ public class Account {
 
     public void setFriends(List<Account> friends) {
         this.friends = friends;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 }

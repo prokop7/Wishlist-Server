@@ -1,4 +1,4 @@
-package server.controller.Parsers;
+package server.controller.parsers;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
@@ -21,8 +21,7 @@ public class FriendsResponseParser {
         }
         try {
             FriendsResponse friendsResponse = gson.fromJson(response, FriendsResponse.class);
-            FriendResponseToAccountMap map = new FriendResponseToAccountMap();
-            return map.GetFrom(friendsResponse);
+            return new FriendResponseToAccountMap().GetFrom(friendsResponse);
         } catch (JsonSyntaxException e) {
             throw new ClientException("Can't parse json response");
         }
