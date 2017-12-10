@@ -56,7 +56,6 @@ public class ItemController {
         Item res = itemRepository.save(item);
         return itemRepository.findItemById(res.getId()).map(
                 account -> {
-                    //TODO address from config
                     URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
                             serverURI,
                             userId,

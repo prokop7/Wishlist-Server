@@ -6,7 +6,7 @@ import server.model.Account;
 public class AccountCommonResource {
     private String name;
     private String photoLink;
-    private int vkId;
+    private Integer vkId;
     private boolean registered;
 
     public AccountCommonResource(Account account) {

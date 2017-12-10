@@ -34,8 +34,8 @@ public class Application {
     }
 
     @Bean
-    public Mapper classMapper(AccountRepository accountRepository) {
-        return new Mapper(accountRepository);
+    public Mapper classMapper() {
+        return new Mapper();
     }
 
     @Bean

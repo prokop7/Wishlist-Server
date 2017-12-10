@@ -1,8 +1,10 @@
 package server.resources;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.NotBlank;
 import server.model.Item;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ItemResource {
     private int id;
 

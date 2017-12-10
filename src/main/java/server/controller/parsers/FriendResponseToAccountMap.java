@@ -1,4 +1,4 @@
-package server.controller.Parsers;
+package server.controller.parsers;
 
 import com.vk.api.sdk.objects.users.User;
 import server.model.Account;

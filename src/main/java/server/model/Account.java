@@ -15,18 +15,18 @@ public class Account {
     private int id;
 
     private String username;
-    private int vkId;
+    private int vkId = -1;
     private String vkToken;
-    private int facebookId;
+    private int facebookId = -1;
     private String facebookToken;
     private String photoLink;
     private boolean registered = false;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Account> friends;
 
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Wishlist> wishlists = new ArrayList<>();
 
     protected Account() {}

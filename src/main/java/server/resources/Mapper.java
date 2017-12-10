@@ -1,21 +1,12 @@
 package server.resources;
 
-import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.objects.users.UserXtrCounters;
-import org.springframework.beans.factory.annotation.Autowired;
 import server.model.Account;
 import server.model.Item;
 import server.model.Wishlist;
-import server.persistence.AccountRepository;
-
-import java.util.List;
 
 public class Mapper {
-    private AccountRepository accountRepository;
-
-    @Autowired
-    public Mapper(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public Mapper() {
     }
 
     @SuppressWarnings("unchecked")
@@ -50,6 +41,12 @@ public class Mapper {
 
     public ItemResource map(Item item) {
         return new ItemResource(item);
+    }
+
+    public Wishlist map(WishlistResource wishlistResource) {
+        Wishlist wishlist = new Wishlist(wishlistResource.getName());
+        wishlistResource.getItems().forEach(itemResource -> wishlist.addItem(map(itemResource)));
+        return wishlist;
     }
 
 

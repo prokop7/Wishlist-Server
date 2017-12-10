@@ -1,4 +1,4 @@
-package server.controller.Parsers;
+package server.controller.parsers;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;

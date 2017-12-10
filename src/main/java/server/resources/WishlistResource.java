@@ -1,12 +1,16 @@
 package server.resources;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.hibernate.validator.constraints.NotBlank;
 import server.model.Wishlist;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WishlistResource {
     private int id;
+    @NotBlank(message = "Wishlist name must not be blank")
     private String name;
 
     //TODO change to ItemResource
