@@ -20,7 +20,12 @@ import server.resources.AccountCommonResource;
 import server.resources.AccountFullResource;
 import server.resources.Mapper;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+
 import java.net.URI;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,7 +58,7 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    AccountFullResource getAccounts(@PathVariable int userId) {
+    AccountFullResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
         validateUserId(userId);
         return mapper.map(this.accountRepository.getOne(userId), AccountFullResource.class);
     }
@@ -63,56 +68,16 @@ public class AccountController {
                 () -> new UserNotFoundException(userId));
     }
 
-    //TODO handle exceptions
-    @RequestMapping(method = RequestMethod.GET, value = "/registration")
-    ResponseEntity<?> registerWithCode(@RequestParam String code) throws ClientException, ApiException {
-        UserAuthResponse authResponse = vk.oauth()
-                .userAuthorizationCodeFlow(
-                        vkClientId,
-                        vkClientSecret,
-                        vkRedirectUri,
-                        code)
-                .execute();
+//    private ResponseEntity<?> addAccount(Account input) {
+//        Account res = accountRepository.save(input);
+//        return accountRepository.findAccountById(res.getId()).map(
+//                account -> {
+//                    URI loc = URI.create(String.format("%s/user/%d", serverURI, res.getId()));
+//                    return ResponseEntity.created(loc).build();
+//                }).orElse(ResponseEntity.noContent().build());
+//    }
 
-        UserActor actor = new UserActor(authResponse.getUserId(), authResponse.getAccessToken());
-        List<UserXtrCounters> info = vk.users()
-                .get(actor)
-                .fields(UserField.PHOTO_100)
-                .execute();
-        Account account = mapper.map(info.get(0), accountRepository.getAccountByVkId(actor.getId()));
-        account.setVkToken(actor.getAccessToken());
-        setFriends(actor, account);
-        return addAccount(account);
-    }
-
-    private void setFriends(UserActor actor, Account account) throws ClientException {
-        String friendsResponse = vk.friends()
-                .get(actor)
-                .unsafeParam("order", "name")
-                .unsafeParam("fields", "first_name,last_name,photo_100")
-                .executeAsString();
-        List<Account> friends = new FriendsResponseParser().Parse(friendsResponse);
-        for (int i = 0; i < friends.size(); i++) {
-            Account friend = friends.get(i);
-            if (accountRepository.getAccountByVkId(friend.getVkId()) == null)
-                accountRepository.save(friend);
-            else
-                friends.set(i, accountRepository.getAccountByVkId(friend.getVkId()));
-        }
-        account.setFriends(friends);
-    }
-
-    private ResponseEntity<?> addAccount(Account input) {
-        Account res = accountRepository.save(input);
-        return accountRepository.findAccountById(res.getId()).map(
-                account -> {
-                    //TODO address from config
-                    URI loc = URI.create(String.format("%s/user/%d", serverURI, res.getId()));
-                    return ResponseEntity.created(loc).build();
-                }).orElse(ResponseEntity.noContent().build());
-    }
-
-    @RequestMapping(method=RequestMethod.GET, value="/{userId}/friends")
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
     List<AccountCommonResource> getRegistredFriends(@PathVariable int userId) {
         validateUserId(userId);
         List<Account> friends = accountRepository.getRegisteredFriends(userId);
@@ -121,7 +86,7 @@ public class AccountController {
         return friendsResource;
     }
 
-    @RequestMapping(method=RequestMethod.GET, value="/{userId}/all_friends")
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/all_friends")
     List<AccountCommonResource> getAllFriends(@PathVariable int userId) {
         validateUserId(userId);
         List<Account> friends = accountRepository.getAllFriends(userId);

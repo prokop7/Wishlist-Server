@@ -7,6 +7,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import server.model.Account;
@@ -27,6 +28,15 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Bean
+    public FilterRegistrationBean jwtFilter() {
+        final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        registrationBean.setFilter(new JwtFilter());
+        registrationBean.addUrlPatterns("/user/*");
+
+        return registrationBean;
     }
 
     @Bean
