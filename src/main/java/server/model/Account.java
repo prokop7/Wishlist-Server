@@ -23,7 +23,7 @@ public class Account {
     private boolean registered = false;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Account> friends;
+    private List<Account> friends = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

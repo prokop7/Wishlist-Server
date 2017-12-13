@@ -17,7 +17,9 @@ import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
 import server.resources.Mapper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 @PropertySource("classpath:application.properties")
@@ -42,17 +44,38 @@ public class Application {
     CommandLineRunner init(AccountRepository accountRepository,
                            WishlistRepository wishlistRepository,
                            ItemRepository itemRepository) {
-        return (evt) -> Arrays.asList(
-                "Anton,Kamill,Lola,Liza".split(","))
-                .forEach(
-                        a -> {
-                            Account account = accountRepository.save(new Account(a));
-                            account.setRegistered(true);
-                            Wishlist wishlist = new Wishlist("New Year " + a, account);
-                            wishlistRepository.save(wishlist);
-                            itemRepository.save(new Item("Book", wishlist));
-                            itemRepository.save(new Item("Car", wishlist));
-                        });
+        List<Account> list = new ArrayList<>();
+        Arrays.asList("Anton,Kamill,Lola,Liza".split(",")).forEach(s -> {
+            Account account = accountRepository.save(new Account(s));
+            list.add(account);
+            account.setRegistered(true);
+            Wishlist wishlist = new Wishlist("New Year " + s, account);
+            wishlistRepository.save(wishlist);
+            itemRepository.save(new Item("Book", wishlist));
+            itemRepository.save(new Item("Car", wishlist));
+        });
+        list.get(0).getFriends().add(list.get(1));
+        list.get(0).getFriends().add(list.get(2));
+        list.get(0).getFriends().add(list.get(3));
+        list.get(1).getFriends().add(list.get(0));
+        list.get(2).getFriends().add(list.get(0));
+        list.get(3).getFriends().add(list.get(0));
+        list.get(3).getFriends().add(list.get(2));
+        list.get(2).getFriends().add(list.get(3));
+        accountRepository.save(list);
+        return (evt) -> list.toArray();
+
+//        return (evt) -> Arrays.asList(
+//                "Anton,Kamill,Lola,Liza".split(","))
+//                .forEach(
+//                        a -> {
+//                            Account account = accountRepository.save(new Account(a));
+//                            account.setRegistered(true);
+//                            Wishlist wishlist = new Wishlist("New Year " + a, account);
+//                            wishlistRepository.save(wishlist);
+//                            itemRepository.save(new Item("Book", wishlist));
+//                            itemRepository.save(new Item("Car", wishlist));
+//                        });
     }
 
 }

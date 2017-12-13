@@ -27,6 +27,7 @@ import java.util.List;
 @RestController
 @PropertySource({"classpath:server.properties", "classpath:oAuth.properties"})
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class AccountController {
     private final AccountRepository accountRepository;
     private final VkApiClient vk;
@@ -64,7 +65,6 @@ public class AccountController {
 
     //TODO handle exceptions
     @RequestMapping(method = RequestMethod.GET, value = "/registration")
-    @CrossOrigin(origins = "*")
     ResponseEntity<?> registerWithCode(@RequestParam String code) throws ClientException, ApiException {
         UserAuthResponse authResponse = vk.oauth()
                 .userAuthorizationCodeFlow(
