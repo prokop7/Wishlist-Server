@@ -1,18 +1,10 @@
 package server.controller;
 
 import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.UserActor;
-import com.vk.api.sdk.exceptions.ApiException;
-import com.vk.api.sdk.exceptions.ClientException;
-import com.vk.api.sdk.objects.UserAuthResponse;
-import com.vk.api.sdk.objects.users.UserXtrCounters;
-import com.vk.api.sdk.queries.users.UserField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import server.controller.parsers.FriendsResponseParser;
 import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
 import server.persistence.AccountRepository;
@@ -20,12 +12,6 @@ import server.resources.AccountCommonResource;
 import server.resources.AccountFullResource;
 import server.resources.Mapper;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
-
-import java.net.URI;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,16 +53,7 @@ public class AccountController {
         this.accountRepository.findAccountById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
-
-//    private ResponseEntity<?> addAccount(Account input) {
-//        Account res = accountRepository.save(input);
-//        return accountRepository.findAccountById(res.getId()).map(
-//                account -> {
-//                    URI loc = URI.create(String.format("%s/user/%d", serverURI, res.getId()));
-//                    return ResponseEntity.created(loc).build();
-//                }).orElse(ResponseEntity.noContent().build());
-//    }
-
+    
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
     List<AccountCommonResource> getRegistredFriends(@PathVariable int userId) {
         validateUserId(userId);

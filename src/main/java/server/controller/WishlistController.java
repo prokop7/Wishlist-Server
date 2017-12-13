@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/user/{userId}/wishlist")
 public class WishlistController {
     private final WishlistRepository wishlistRepository;
