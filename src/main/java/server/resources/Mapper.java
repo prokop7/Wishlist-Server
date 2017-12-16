@@ -49,6 +49,14 @@ public class Mapper {
         return wishlist;
     }
 
+    public Item map(ItemResource itemResource, Item item) {
+        item.setName(itemResource.getName());
+        item.setDescription(itemResource.getDescription());
+        item.setLink(itemResource.getLink());
+        item.setPrice(itemResource.getPrice());
+        return item;
+    }
+
 
 //    private Account map(AccountCommonResource resource) {
 //        Account account = accountRepository.getAccountByVkId(resource.getVkId());
