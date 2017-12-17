@@ -1,6 +1,5 @@
 package server.controller;
 
-import com.vk.api.sdk.client.VkApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -21,25 +20,14 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class AccountController {
     private final AccountRepository accountRepository;
-    private final VkApiClient vk;
     private Mapper mapper;
 
     @Value("${serverUri}")
     private String serverURI;
 
-    @Value("${vkRedirectUri}")
-    private String vkRedirectUri;
-
-    @Value("${vkClientSecret}")
-    private String vkClientSecret;
-
-    @Value("${vkClientId}")
-    private Integer vkClientId;
-
     @Autowired
-    public AccountController(AccountRepository accountRepository, VkApiClient vkApiClient, Mapper mapper) {
+    public AccountController(AccountRepository accountRepository, Mapper mapper) {
         this.accountRepository = accountRepository;
-        this.vk = vkApiClient;
         this.mapper = mapper;
     }
 

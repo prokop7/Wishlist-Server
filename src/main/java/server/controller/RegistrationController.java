@@ -11,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import server.controller.parsers.FriendsResponseParser;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
+@PropertySource({"classpath:server.properties", "classpath:oAuth.properties"})
 public class RegistrationController {
     private final AccountRepository accountRepository;
     private final VkApiClient vk;
@@ -67,12 +69,9 @@ public class RegistrationController {
         Account account = mapper.map(info.get(0), accountRepository.getAccountByVkId(actor.getId()));
         account.setVkToken(actor.getAccessToken());
         setFriends(actor, account);
+        accountRepository.save(account);
 
         String jwtToken;
-
-        Account res = accountRepository.save(account);
-        URI loc = URI.create(String.format("%s/user/%d", serverURI, res.getId()));
-
         jwtToken = Jwts.builder()
                 .setSubject(String.valueOf(account.getId()))
                 .claim("roles", "user")

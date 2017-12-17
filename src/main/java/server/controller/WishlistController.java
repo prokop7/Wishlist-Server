@@ -13,7 +13,6 @@ import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
 import server.resources.Mapper;
 import server.resources.WishlistResource;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -27,7 +26,6 @@ public class WishlistController {
     private final WishlistRepository wishlistRepository;
     private final AccountRepository accountRepository;
     private Mapper mapper;
-    private ItemRepository itemRepository;
 
     @Value("${serverUri}")
     private String serverURI;
@@ -35,12 +33,10 @@ public class WishlistController {
     @Autowired
     public WishlistController(WishlistRepository wishlistRepository,
                               AccountRepository accountRepository,
-                              Mapper mapper,
-                              ItemRepository itemRepository) {
+                              Mapper mapper) {
         this.wishlistRepository = wishlistRepository;
         this.accountRepository = accountRepository;
         this.mapper = mapper;
-        this.itemRepository = itemRepository;
     }
 
     @RequestMapping(method = RequestMethod.GET)
