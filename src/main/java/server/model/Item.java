@@ -17,6 +17,8 @@ public class Item {
     private String description;
     private String link;
     private String price;
+    private boolean taken;
+    private boolean presented;
 
     @ManyToOne
     @JsonIgnore
@@ -75,5 +77,21 @@ public class Item {
 
     public void setWishlist(Wishlist wishlist) {
         this.wishlist = wishlist;
+    }
+
+    public boolean isTaken() {
+        return taken;
+    }
+
+    public void setTaken(boolean taken) {
+        this.taken = taken;
+    }
+
+    public boolean isPresented() {
+        return presented;
+    }
+
+    public void setPresented(boolean presented) {
+        this.presented = presented;
     }
 }

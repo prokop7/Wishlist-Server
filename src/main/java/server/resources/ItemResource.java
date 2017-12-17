@@ -13,6 +13,8 @@ public class ItemResource {
     private String description;
     private String price;
     private String link;
+    private boolean taken;
+    private boolean presented;
 
     public ItemResource(Item item) {
         this.id = item.getId();
@@ -20,6 +22,8 @@ public class ItemResource {
         this.description = item.getDescription();
         this.price = item.getPrice();
         this.link = item.getLink();
+        this.taken = item.isTaken();
+        this.presented = item.isPresented();
     }
 
     public ItemResource() {
@@ -43,5 +47,21 @@ public class ItemResource {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isTaken() {
+        return taken;
+    }
+
+    public void setTaken(boolean taken) {
+        this.taken = taken;
+    }
+
+    public boolean isPresented() {
+        return presented;
+    }
+
+    public void setPresented(boolean presented) {
+        this.presented = presented;
     }
 }

@@ -6,7 +6,7 @@ import server.model.Wishlist;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AccountFullResource extends AccountCommonResource {
+public class AccountFullResource extends AccountCommonResource implements Resource {
     //TODO Really not needed?
 //    private List<AccountCommonResource> friends = new LinkedList<>();
     private List<WishlistResource> wishlists;
