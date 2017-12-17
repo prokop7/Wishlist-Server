@@ -9,7 +9,6 @@ import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
 import server.persistence.AccountRepository;
 import server.resources.AccountCommonResource;
-import server.resources.AccountFullResource;
 import server.resources.Mapper;
 
 import java.util.LinkedList;
@@ -44,9 +43,9 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    AccountFullResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
+    AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
         validateUserId(userId);
-        return mapper.map(this.accountRepository.getOne(userId), AccountFullResource.class);
+        return mapper.map(this.accountRepository.getOne(userId), AccountCommonResource.class);
     }
 
     private void validateUserId(int userId) {

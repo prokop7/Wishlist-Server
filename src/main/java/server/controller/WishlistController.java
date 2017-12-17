@@ -1,5 +1,6 @@
 package server.controller;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +45,13 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    List<WishlistResource> getWishlists(@PathVariable int userId) {
+    List<WishlistResource> getWishlists(@PathVariable int userId,
+                                        @RequestAttribute Claims claims) {
         validateUserId(userId);
-        List<Wishlist> wishlists = wishlistRepository.getAllByAccount_Id(userId);
+        List<Wishlist> wishlists;
+        wishlists = Integer.valueOf(claims.getSubject()) != userId
+                ? wishlistRepository.getAllByAccount_IdAndVisibility(userId, Wishlist.Visibility.PUBLIC)
+                : wishlistRepository.getAllByAccount_Id(userId);
         List<WishlistResource> resources = new LinkedList<>();
         wishlists.forEach(wishlist -> resources.add(new WishlistResource(wishlist)));
         return resources;
@@ -70,7 +75,9 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{wishlistId}")
-    WishlistResource getWishlist(@PathVariable int userId, @PathVariable int wishlistId) {
+    WishlistResource getWishlist(@PathVariable int userId,
+                                 @PathVariable int wishlistId,
+                                 @RequestAttribute Claims claims) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         return mapper.map(wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(

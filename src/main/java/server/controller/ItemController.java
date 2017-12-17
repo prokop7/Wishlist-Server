@@ -25,6 +25,7 @@ import java.net.URI;
 @RestController
 @PropertySource("classpath:server.properties")
 @RequestMapping("/user/{userId}/wishlist/{wishlistId}/item")
+@CrossOrigin("*")
 public class ItemController {
     private final WishlistRepository wishlistRepository;
     private final AccountRepository accountRepository;

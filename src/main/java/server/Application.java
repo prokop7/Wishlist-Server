@@ -55,7 +55,7 @@ public class Application {
                            WishlistRepository wishlistRepository,
                            ItemRepository itemRepository) {
         List<Account> list = new ArrayList<>();
-        Arrays.asList("Anton,Kamill,Lola,Liza".split(",")).forEach(s -> {
+        Arrays.asList("Anton Prokopev,Kamill,Lola,Liza".split(",")).forEach(s -> {
             Account account = accountRepository.save(new Account(s));
             list.add(account);
             account.setRegistered(true);
@@ -72,6 +72,7 @@ public class Application {
         list.get(3).getFriends().add(list.get(0));
         list.get(3).getFriends().add(list.get(2));
         list.get(2).getFriends().add(list.get(3));
+        list.get(0).setVkId(109317266);
         accountRepository.save(list);
         return (evt) -> list.toArray();
 

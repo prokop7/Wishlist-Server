@@ -12,6 +12,7 @@ public class WishlistResource {
     private int id;
     @NotBlank(message = "Wishlist name must not be blank")
     private String name;
+    private Wishlist.Visibility visibility;
 
     //TODO change to ItemResource
     private List<ItemResource> items = new LinkedList<>();
@@ -19,6 +20,7 @@ public class WishlistResource {
     public WishlistResource(Wishlist wishlist) {
         this.id = wishlist.getId();
         this.name = wishlist.getName();
+        this.visibility = wishlist.getVisibility();
         wishlist.getItems().forEach(item -> this.items.add(new ItemResource(item)));
     }
 
@@ -35,5 +37,9 @@ public class WishlistResource {
 
     public int getId() {
         return id;
+    }
+
+    public Wishlist.Visibility getVisibility() {
+        return visibility;
     }
 }
