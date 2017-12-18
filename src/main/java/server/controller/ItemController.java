@@ -8,16 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import server.controller.exceptions.UserNotFoundException;
-import server.controller.exceptions.ValidationError;
-import server.controller.exceptions.ValidationErrorBuilder;
-import server.controller.exceptions.WishlistNotFoundException;
+import server.controller.exceptions.*;
+import server.model.Account;
 import server.model.Item;
 import server.persistence.AccountRepository;
 import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
 import server.resources.ItemResource;
 import server.resources.Mapper;
+import server.resources.MessageResource;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -75,6 +74,30 @@ public class ItemController {
                 () -> new WishlistNotFoundException(wishlistId)));
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/take")
+    ResponseEntity<?> takeItem(@PathVariable int userId,
+                             @PathVariable int wishlistId,
+                             @PathVariable int itemId) {
+        validateUserId(userId);
+        validateWishlistId(wishlistId);
+        validateItemId(itemId);
+        Item item = itemRepository.getOne(itemId);
+        Account user = accountRepository.getOne(userId);
+        item.setTaker(user);
+        item.setState(1);
+//        itemRepository.setTakenByItemId(itemId);
+        Item res = itemRepository.save(item);
+        return itemRepository.findById(res.getId()).map(
+                account -> {
+                    URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
+                            serverURI,
+                            userId,
+                            wishlistId,
+                            res.getId()));
+                    return ResponseEntity.created(loc).build();
+                }).orElse(ResponseEntity.noContent().build());
+    }
+
 
     private void validateWishlistId(int wishlistId) {
         this.wishlistRepository.findById(wishlistId).orElseThrow(
@@ -84,6 +107,11 @@ public class ItemController {
     private void validateUserId(int userId) {
         this.accountRepository.findAccountById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
+    }
+
+    private void validateItemId(int itemId) {
+        this.itemRepository.findItemById(itemId).orElseThrow(
+                () -> new ItemNotFoundException(itemId));
     }
 
     @ExceptionHandler

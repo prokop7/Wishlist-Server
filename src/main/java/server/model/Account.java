@@ -25,9 +25,11 @@ public class Account {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Account> friends = new ArrayList<>();
 
-
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Wishlist> wishlists = new ArrayList<>();
+
+    @OneToMany(mappedBy ="taker", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Item> items = new ArrayList<>();
 
     protected Account() {}
 
@@ -53,6 +55,10 @@ public class Account {
 
     public List<Wishlist> getWishlists() {
         return wishlists;
+    }
+
+    public List<Item> getItems() {
+        return items;
     }
 
     public void setUsername(String username) {
@@ -105,5 +111,10 @@ public class Account {
 
     public void setRegistered(boolean registered) {
         this.registered = registered;
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+        item.setTaker(this);
     }
 }

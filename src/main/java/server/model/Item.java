@@ -3,8 +3,11 @@ package server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.ManyToAny;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Item {
@@ -17,12 +20,15 @@ public class Item {
     private String description;
     private String link;
     private String price;
-    private boolean taken;
-    private boolean presented;
+    private int state; // 0 - basic, 1 - taken, 2 - presented
 
     @ManyToOne
     @JsonIgnore
     private Wishlist wishlist;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account taker;
 
     public Item() {}
 
@@ -79,19 +85,19 @@ public class Item {
         this.wishlist = wishlist;
     }
 
-    public boolean isTaken() {
-        return taken;
+    public Account getTaker() {
+        return taker;
     }
 
-    public void setTaken(boolean taken) {
-        this.taken = taken;
+    public void setTaker(Account taker) {
+        this.taker = taker;
     }
 
-    public boolean isPresented() {
-        return presented;
+    public int getState() {
+        return state;
     }
 
-    public void setPresented(boolean presented) {
-        this.presented = presented;
+    public void setState(int state) {
+        this.state = state;
     }
 }

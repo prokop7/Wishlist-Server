@@ -13,8 +13,7 @@ public class ItemResource {
     private String description;
     private String price;
     private String link;
-    private boolean taken;
-    private boolean presented;
+    private int state;
 
     public ItemResource(Item item) {
         this.id = item.getId();
@@ -22,8 +21,7 @@ public class ItemResource {
         this.description = item.getDescription();
         this.price = item.getPrice();
         this.link = item.getLink();
-        this.taken = item.isTaken();
-        this.presented = item.isPresented();
+        this.state = item.getState();
     }
 
     public ItemResource() {
@@ -49,19 +47,11 @@ public class ItemResource {
         return id;
     }
 
-    public boolean isTaken() {
-        return taken;
+    public int getState() {
+        return state;
     }
 
-    public void setTaken(boolean taken) {
-        this.taken = taken;
-    }
-
-    public boolean isPresented() {
-        return presented;
-    }
-
-    public void setPresented(boolean presented) {
-        this.presented = presented;
+    public void setState(int state) {
+        this.state = state;
     }
 }
