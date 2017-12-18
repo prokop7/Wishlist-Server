@@ -1,9 +1,11 @@
 package server.resources;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotBlank;
 import server.model.Wishlist;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,9 +14,11 @@ public class WishlistResource {
     private int id;
     @NotBlank(message = "Wishlist name must not be blank")
     private String name;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Wishlist.Visibility visibility;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<AccountCommonResource> exclusions = new ArrayList<>();
 
-    //TODO change to ItemResource
     private List<ItemResource> items = new LinkedList<>();
 
     public WishlistResource(Wishlist wishlist) {
@@ -41,5 +45,9 @@ public class WishlistResource {
 
     public Wishlist.Visibility getVisibility() {
         return visibility;
+    }
+
+    public List<AccountCommonResource> getExclusions() {
+        return exclusions;
     }
 }
