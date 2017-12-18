@@ -77,9 +77,9 @@ public class ItemController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{itemId}")
     ResponseEntity<?> editItem(@PathVariable int userId,
-                          @PathVariable int wishlistId,
-                          @PathVariable int itemId,
-                          @Valid @RequestBody ItemResource itemResource) {
+                               @PathVariable int wishlistId,
+                               @PathVariable int itemId,
+                               @Valid @RequestBody ItemResource itemResource) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         validateItemId(itemId);
@@ -98,33 +98,22 @@ public class ItemController {
                 }).orElse(ResponseEntity.noContent().build());
     }
 
-    private void validateItemId(int itemId) {
-        this.itemRepository.findItemById(itemId).orElseThrow(
-                () -> new WishlistNotFoundException(itemId));
-    }
-
     @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/take")
     ResponseEntity<?> takeItem(@PathVariable int userId,
-                             @PathVariable int wishlistId,
-                             @PathVariable int itemId) {
+                               @PathVariable int wishlistId,
+                               @PathVariable int itemId) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         validateItemId(itemId);
-        Item item = itemRepository.getOne(itemId);
+        Item item = itemRepository.findByIdAndWishlistIdAnAndAccountId(itemId, wishlistId, userId).orElseThrow(
+                () -> new ItemNotFoundException(userId));
         Account user = accountRepository.getOne(userId);
         item.setTaker(user);
         item.setState(1);
 //        itemRepository.setTakenByItemId(itemId);
         Item res = itemRepository.save(item);
         return itemRepository.findById(res.getId()).map(
-                account -> {
-                    URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
-                            serverURI,
-                            userId,
-                            wishlistId,
-                            res.getId()));
-                    return ResponseEntity.created(loc).build();
-                }).orElse(ResponseEntity.noContent().build());
+                account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
     }
 
 
