@@ -45,6 +45,7 @@ public class Mapper {
 
     public Wishlist map(WishlistResource wishlistResource) {
         Wishlist wishlist = new Wishlist(wishlistResource.getName());
+        wishlist.setVisibility(wishlistResource.getVisibility());
         wishlistResource.getItems().forEach(itemResource -> wishlist.addItem(map(itemResource)));
         return wishlist;
     }

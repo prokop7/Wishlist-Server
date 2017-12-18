@@ -9,17 +9,33 @@ import java.util.List;
 
 @Entity
 public class Wishlist {
+    public enum Visibility {
+        PRIVATE(0),
+        FRIENDS(1),
+        PUBLIC(2);
+        int value;
+
+        public int getValue() {
+            return this.value;
+        }
+
+        Visibility(int value) {
+            this.value = value;
+        }
+    }
+
 
     @Id
     @GeneratedValue(generator="wishlistIncrement")
     @GenericGenerator(name="wishlistIncrement", strategy="increment")
     private int id;
     private String name;
-    private short visibility;
+
+    private Visibility visibility = Visibility.PUBLIC;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Account> users = new ArrayList<>();
+    private List<Account> exclusions = new ArrayList<>();
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,12 +66,12 @@ public class Wishlist {
         this.name = name;
     }
 
-    public void setVisibility(short visibility) {
+    public void setVisibility(Visibility visibility) {
         this.visibility = visibility;
     }
 
-    public void setUsers(List<Account> users) {
-        this.users = users;
+    public void setExclusions(List<Account> exclusions) {
+        this.exclusions = exclusions;
     }
 
     public void setAccount(Account account) {
@@ -71,12 +87,12 @@ public class Wishlist {
         return id;
     }
 
-    public short getVisibility() {
+    public Visibility getVisibility() {
         return visibility;
     }
 
-    public List<Account> getUsers() {
-        return users;
+    public List<Account> getExclusions() {
+        return exclusions;
     }
 
     public List<Item> getItems() {

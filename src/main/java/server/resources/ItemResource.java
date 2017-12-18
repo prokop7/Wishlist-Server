@@ -13,6 +13,7 @@ public class ItemResource {
     private String description;
     private String price;
     private String link;
+    private int state;
 
     public ItemResource(Item item) {
         this.id = item.getId();
@@ -20,6 +21,7 @@ public class ItemResource {
         this.description = item.getDescription();
         this.price = item.getPrice();
         this.link = item.getLink();
+        this.state = item.getState();
     }
 
     public ItemResource() {
@@ -43,5 +45,13 @@ public class ItemResource {
 
     public int getId() {
         return id;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }

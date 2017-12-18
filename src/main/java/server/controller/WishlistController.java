@@ -1,10 +1,15 @@
 package server.controller;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import server.controller.exceptions.UserNotFoundException;
+import server.controller.exceptions.ValidationError;
+import server.controller.exceptions.ValidationErrorBuilder;
 import server.controller.exceptions.WishlistNotFoundException;
 import server.model.Account;
 import server.model.Wishlist;
@@ -16,6 +21,7 @@ import server.resources.WishlistResource;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,9 +46,14 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    List<WishlistResource> getWishlists(@PathVariable int userId) {
+    List<WishlistResource> getWishlists(@PathVariable int userId,
+                                        @RequestAttribute Claims claims) {
         validateUserId(userId);
-        List<Wishlist> wishlists = wishlistRepository.getAllByAccount_Id(userId);
+        List<Wishlist> wishlists;
+        int roleId = Integer.valueOf(claims.getSubject());
+        wishlists = roleId != userId
+                ? wishlistRepository.getAllWithVisibility(userId, roleId)
+                : wishlistRepository.getAllByAccount_Id(userId);
         List<WishlistResource> resources = new LinkedList<>();
         wishlists.forEach(wishlist -> resources.add(new WishlistResource(wishlist)));
         return resources;
@@ -52,8 +63,13 @@ public class WishlistController {
     ResponseEntity<?> addWishlist(@PathVariable int userId,
                                   @Valid @RequestBody WishlistResource wishlistResource) {
         validateUserId(userId);
+        List<Account> exclusions = new ArrayList<>();
+        wishlistResource.getExclusions().forEach(exclusion -> exclusions.add(
+                accountRepository.findAccountById(exclusion.getId()).orElseThrow(
+                        () -> new UserNotFoundException(exclusion.getId()))));
         Wishlist wishlist = mapper.map(wishlistResource);
         wishlist.setAccount(accountRepository.getOne(userId));
+        wishlist.setExclusions(exclusions);
         Wishlist res = wishlistRepository.save(wishlist);
         return wishlistRepository.findById(res.getId()).map(
                 account -> {
@@ -66,7 +82,9 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{wishlistId}")
-    WishlistResource getWishlist(@PathVariable int userId, @PathVariable int wishlistId) {
+    WishlistResource getWishlist(@PathVariable int userId,
+                                 @PathVariable int wishlistId,
+                                 @RequestAttribute Claims claims) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         return mapper.map(wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(
@@ -82,5 +100,4 @@ public class WishlistController {
         this.accountRepository.findAccountById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
-
 }
