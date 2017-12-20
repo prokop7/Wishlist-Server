@@ -5,6 +5,8 @@ import server.model.Account;
 import server.model.Item;
 import server.model.Wishlist;
 
+import java.util.ArrayList;
+
 public class Mapper {
     public Mapper() {
     }
@@ -46,26 +48,18 @@ public class Mapper {
     public Wishlist map(WishlistResource wishlistResource) {
         Wishlist wishlist = new Wishlist(wishlistResource.getName());
         wishlist.setVisibility(wishlistResource.getVisibility());
-        wishlistResource.getItems().forEach(itemResource -> wishlist.addItem(map(itemResource)));
         return wishlist;
     }
 
-    public Item map(ItemResource itemResource, Item item) {
+    public void map(WishlistResource wishlistResource, Wishlist wishlist) {
+        wishlist.setName(wishlistResource.getName());
+        wishlist.setVisibility(wishlistResource.getVisibility());
+    }
+
+    public void map(ItemResource itemResource, Item item) {
         item.setName(itemResource.getName());
         item.setDescription(itemResource.getDescription());
         item.setLink(itemResource.getLink());
         item.setPrice(itemResource.getPrice());
-        return item;
     }
-
-
-//    private Account map(AccountCommonResource resource) {
-//        Account account = accountRepository.getAccountByVkId(resource.getVkId());
-//        if (account == null)
-//            account = new Account(resource.getName());
-//        account.setPhotoLink(resource.getPhotoLink());
-//        account.setPhotoLink(resource.getPhotoLink());
-//        account.setVkId(resource.getVkId());
-//        return account;
-//    }
 }

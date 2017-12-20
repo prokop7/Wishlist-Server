@@ -1,6 +1,7 @@
 package server.controller;
 
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -98,22 +99,28 @@ public class ItemController {
                 }).orElse(ResponseEntity.noContent().build());
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/take")
+    @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/state")
     ResponseEntity<?> takeItem(@PathVariable int userId,
                                @PathVariable int wishlistId,
-                               @PathVariable int itemId) {
+                               @PathVariable int itemId,
+                               @RequestBody int state,
+                               @RequestAttribute Claims claims) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         validateItemId(itemId);
+        int roleId = Integer.valueOf(claims.getSubject());
         Item item = itemRepository.findByIdAndWishlistIdAnAndAccountId(itemId, wishlistId, userId).orElseThrow(
                 () -> new ItemNotFoundException(userId));
-        Account user = accountRepository.getOne(userId);
-        item.setTaker(user);
-        item.setState(1);
+        Account user = accountRepository.getOne(roleId);
+        if (roleId != userId)
+            item.setTaker(user);
+        if (state == 0)
+            item.setTaker(null);
+        item.setState(state);
 //        itemRepository.setTakenByItemId(itemId);
         Item res = itemRepository.save(item);
         return itemRepository.findById(res.getId()).map(
-                account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
+                account -> ResponseEntity.ok().build()).orElse(ResponseEntity.noContent().build());
     }
 
 
