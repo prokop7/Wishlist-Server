@@ -114,6 +114,8 @@ public class ItemController {
         Account user = accountRepository.getOne(roleId);
         if (roleId != userId)
             item.setTaker(user);
+        if (state == 0)
+            item.setTaker(null);
         item.setState(state);
 //        itemRepository.setTakenByItemId(itemId);
         Item res = itemRepository.save(item);
