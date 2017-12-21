@@ -18,6 +18,7 @@ public class WishlistResource {
     private Wishlist.Visibility visibility;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<AccountCommonResource> exclusions = new ArrayList<>();
+    private int wishlistOrder;
 
     private List<ItemResource> items = new LinkedList<>();
 
@@ -25,6 +26,7 @@ public class WishlistResource {
         this.id = wishlist.getId();
         this.name = wishlist.getName();
         this.visibility = wishlist.getVisibility();
+        this.wishlistOrder = wishlist.getWishlistOrder();
         wishlist.getItems().forEach(item -> this.items.add(new ItemResource(item)));
     }
 
@@ -49,5 +51,9 @@ public class WishlistResource {
 
     public List<AccountCommonResource> getExclusions() {
         return exclusions;
+    }
+
+    public int getWishlistOrder() {
+        return wishlistOrder;
     }
 }

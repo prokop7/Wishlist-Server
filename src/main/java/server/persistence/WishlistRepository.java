@@ -13,23 +13,26 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
 
     Optional<Wishlist> findById(int wishlistId);
 
-    List<Wishlist> getAllByAccount_Id(int account_id);
+    List<Wishlist> getAllByAccount_IdOrderByWishlistOrder(int account_id);
 
     List<Wishlist> getAllByAccount_IdAndVisibility(int account_id, Wishlist.Visibility visibility);
 
     Optional<Wishlist> findByAccount_IdAndId(int userId, int wishlistId);
 
+    int countAllByAccount_Id(int account_id);
+
     @Query(value = "SELECT DISTINCT " +
             "wishlist.id AS id, " +
             "wishlist.account_id AS account_id, " +
             "wishlist.name AS name, " +
-            "wishlist.visibility AS visibility " +
+            "wishlist.visibility AS visibility, " +
+            "wishlist.wishlist_order AS wishlist_order " +
             "FROM wishlist " +
             "  LEFT JOIN wishlist_exclusions we ON wishlist.id = we.wishlist_id " +
             "WHERE wishlist.account_id = :userId AND " +
             "      ((we IS NULL AND wishlist.visibility = 2) OR " +
             "       (we.exclusions_id = :roleId AND wishlist.visibility = 0) OR " +
-            "       (we.exclusions_id != :roleId AND wishlist.visibility = 2))", nativeQuery = true
+            "       (we.exclusions_id != :roleId AND wishlist.visibility = 2)) ORDER BY wishlist_order", nativeQuery = true
     )
     List<Wishlist> getAllWithVisibility(
             @Param("userId")

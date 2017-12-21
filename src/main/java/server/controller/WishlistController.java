@@ -45,7 +45,7 @@ public class WishlistController {
         validateUserId(userId);
         List<Wishlist> wishlists = new ArrayList<>();
         int roleId = Integer.valueOf(claims.getSubject());
-        for (Wishlist w : wishlistRepository.getAllByAccount_Id(userId)) {
+        for (Wishlist w : wishlistRepository.getAllByAccount_IdOrderByWishlistOrder(userId)) {
             boolean inExclusion = false;
             for (Account account : w.getExclusions()) {
                 if (account.getId() == roleId) {
@@ -79,12 +79,14 @@ public class WishlistController {
     ResponseEntity<?> addWishlist(@PathVariable int userId,
                                   @Valid @RequestBody WishlistResource wishlistResource) {
         validateUserId(userId);
+        int nextOrder = wishlistRepository.countAllByAccount_Id(userId);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
             exclusions.add(accountRepository.findAccountById(exclusion.getId()).orElseThrow(
                     () -> new UserNotFoundException(exclusion.getId())));
         }
         Wishlist wishlist = mapper.map(wishlistResource);
+        wishlist.setWishlistOrder(nextOrder);
         wishlist.setAccount(accountRepository.getOne(userId));
         wishlist.setExclusions(exclusions);
         Wishlist res = wishlistRepository.save(wishlist);
@@ -116,6 +118,19 @@ public class WishlistController {
         Wishlist res = wishlistRepository.save(wishlist);
         return wishlistRepository.findById(res.getId()).map(
                 account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
+    }
+
+    @RequestMapping(method = RequestMethod.PUT)
+    ResponseEntity<?> editWishlistOrder(@PathVariable int userId,
+                                        @Valid @RequestBody List<WishlistResource> list) {
+        validateUserId(userId);
+        for (WishlistResource resource : list) {
+            validateWishlistId(resource.getId());
+            Wishlist wishlist = wishlistRepository.getOne(resource.getId());
+            wishlist.setWishlistOrder(resource.getWishlistOrder());
+            wishlistRepository.save(wishlist);
+        }
+        return ResponseEntity.ok().build();
     }
 
 

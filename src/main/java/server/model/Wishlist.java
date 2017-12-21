@@ -9,6 +9,15 @@ import java.util.List;
 
 @Entity
 public class Wishlist {
+
+    public int getWishlistOrder() {
+        return wishlistOrder;
+    }
+
+    public void setWishlistOrder(int wishlistOrder) {
+        this.wishlistOrder = wishlistOrder;
+    }
+
     public enum Visibility {
         PRIVATE(0),
         FRIENDS(1),
@@ -30,6 +39,7 @@ public class Wishlist {
     @GenericGenerator(name="wishlistIncrement", strategy="increment")
     private int id;
     private String name;
+    private int wishlistOrder;
 
     private Visibility visibility = Visibility.PUBLIC;
 
