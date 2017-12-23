@@ -17,10 +17,11 @@ import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
 import server.resources.ItemResource;
 import server.resources.Mapper;
-import server.resources.MessageResource;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @PropertySource("classpath:server.properties")
@@ -54,6 +55,8 @@ public class ItemController {
         validateWishlistId(wishlistId);
         Item item = mapper.map(itemResource);
         item.setWishlist(wishlistRepository.getOne(wishlistId));
+        int order = itemRepository.countAllByWishlist_Id(wishlistId);
+        item.setItemOrder(order);
         Item res = itemRepository.save(item);
         return itemRepository.findItemById(res.getId()).map(
                 account -> {
@@ -98,6 +101,26 @@ public class ItemController {
                     return ResponseEntity.created(loc).build();
                 }).orElse(ResponseEntity.noContent().build());
     }
+
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/order")
+    ResponseEntity<?> setItemsOrder(@PathVariable int userId,
+                              @PathVariable int wishlistId,
+                              @Valid @RequestBody List<ItemResource> itemResources) {
+        validateUserId(userId);
+        validateWishlistId(wishlistId);
+        List<Item> itemsToSave = new ArrayList<>();
+        for (ItemResource resource : itemResources) {
+            validateItemId(resource.getId());
+            Item item = itemRepository.getOne(resource.getId());
+            item.setItemOrder(resource.getItemOrder());
+            itemsToSave.add(item);
+        }
+        itemRepository.save(itemsToSave);
+        return ResponseEntity.ok().build();
+    }
+
+
 
     @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/state")
     ResponseEntity<?> takeItem(@PathVariable int userId,

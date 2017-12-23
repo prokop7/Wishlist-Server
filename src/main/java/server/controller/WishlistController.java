@@ -46,6 +46,7 @@ public class WishlistController {
         List<Wishlist> wishlists = new ArrayList<>();
         int roleId = Integer.valueOf(claims.getSubject());
         for (Wishlist w : wishlistRepository.getAllByAccount_IdOrderByWishlistOrder(userId)) {
+            w.sortItems();
             boolean inExclusion = false;
             for (Account account : w.getExclusions()) {
                 if (account.getId() == roleId) {
@@ -56,6 +57,7 @@ public class WishlistController {
             if ((w.getVisibility().getValue() == 0) == inExclusion || roleId == userId)
                 wishlists.add(w);
         }
+
         List<WishlistResource> resources = new LinkedList<>();
         for (Wishlist wishlist : wishlists) {
             WishlistResource wishlistResource = roleId == userId
@@ -120,7 +122,7 @@ public class WishlistController {
                 account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT, value = "/order")
     ResponseEntity<?> editWishlistOrder(@PathVariable int userId,
                                         @Valid @RequestBody List<WishlistResource> list) {
         validateUserId(userId);

@@ -26,6 +26,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
                         @Param("wId") int wId,
                         @Param("aId") int aId);
 
+    int countAllByWishlist_Id(int wishlist_id);
+
     @Transactional
     @Modifying
     @Query("UPDATE Item i SET state = 1 WHERE i.id = :itemId")

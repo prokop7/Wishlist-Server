@@ -15,6 +15,7 @@ public class ItemResource {
     private String price;
     private String link;
     private int state;
+    private int itemOrder;
     @JsonIgnore
     private AccountCommonResource taker;
 
@@ -25,6 +26,7 @@ public class ItemResource {
         this.price = item.getPrice();
         this.link = item.getLink();
         this.state = item.getState();
+        this.itemOrder = item.getItemOrder();
         if (item.getTaker() != null)
             this.taker = new AccountCommonResource(item.getTaker());
     }
@@ -60,5 +62,9 @@ public class ItemResource {
 
     public AccountCommonResource getTaker() {
         return taker;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
     }
 }

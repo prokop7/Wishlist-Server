@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -16,6 +17,10 @@ public class Wishlist {
 
     public void setWishlistOrder(int wishlistOrder) {
         this.wishlistOrder = wishlistOrder;
+    }
+
+    public void sortItems() {
+        items.sort(Comparator.comparingInt(Item::getItemOrder));
     }
 
     public enum Visibility {

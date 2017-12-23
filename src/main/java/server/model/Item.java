@@ -97,4 +97,12 @@ public class Item {
     public void setState(int state) {
         this.state = state;
     }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
+    }
 }
