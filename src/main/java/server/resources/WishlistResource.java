@@ -3,6 +3,7 @@ package server.resources;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotBlank;
+import server.model.Item;
 import server.model.Wishlist;
 
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ public class WishlistResource {
         this.name = wishlist.getName();
         this.visibility = wishlist.getVisibility();
         this.wishlistOrder = wishlist.getWishlistOrder();
-        wishlist.getItems().forEach(item -> this.items.add(new ItemResource(item)));
+        for (Item item : wishlist.getItems())
+            if (item.isActive()) this.items.add(new ItemResource(item));
     }
 
     public WishlistResource() {

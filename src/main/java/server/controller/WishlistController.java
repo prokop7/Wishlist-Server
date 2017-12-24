@@ -45,7 +45,7 @@ public class WishlistController {
         validateUserId(userId);
         List<Wishlist> wishlists = new ArrayList<>();
         int roleId = Integer.valueOf(claims.getSubject());
-        for (Wishlist w : wishlistRepository.getAllByAccount_IdOrderByWishlistOrder(userId)) {
+        for (Wishlist w : wishlistRepository.getAllByAccount_IdAndActiveIsTrueOrderByWishlistOrder(userId)) {
             w.sortItems();
             boolean inExclusion = false;
             for (Account account : w.getExclusions()) {
@@ -81,7 +81,7 @@ public class WishlistController {
     ResponseEntity<?> addWishlist(@PathVariable int userId,
                                   @Valid @RequestBody WishlistResource wishlistResource) {
         validateUserId(userId);
-        int nextOrder = wishlistRepository.countAllByAccount_Id(userId);
+        int nextOrder = wishlistRepository.countAllByAccount_IdAndActiveIsTrue(userId);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
             exclusions.add(accountRepository.findAccountById(exclusion.getId()).orElseThrow(
@@ -113,13 +113,26 @@ public class WishlistController {
             exclusions.add(accountRepository.findAccountById(exclusion.getId()).orElseThrow(
                     () -> new UserNotFoundException(exclusion.getId())));
         }
-        Wishlist wishlist = wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(
+        Wishlist wishlist = wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).orElseThrow(
                 () -> new WishlistNotFoundException(wishlistId));
         mapper.map(wishlistResource, wishlist);
         wishlist.setExclusions(exclusions);
         Wishlist res = wishlistRepository.save(wishlist);
         return wishlistRepository.findById(res.getId()).map(
                 account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{wishlistId}")
+    ResponseEntity<?> deleteWishlist(@PathVariable int userId,
+                                     @PathVariable int wishlistId) {
+        validateUserId(userId);
+        validateWishlistId(wishlistId);
+        wishlistRepository.setActiveFalse(userId, wishlistId);
+        List<Wishlist> wishlists = wishlistRepository.getAllByAccount_IdAndActiveIsTrueOrderByWishlistOrder(userId);
+        for (int i = 0; i < wishlists.size(); i++)
+            wishlists.get(i).setWishlistOrder(i);
+        wishlistRepository.save(wishlists);
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
@@ -142,7 +155,7 @@ public class WishlistController {
                                  @RequestAttribute Claims claims) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
-        return mapper.map(wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(
+        return mapper.map(wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).orElseThrow(
                 () -> new WishlistNotFoundException(wishlistId)));
     }
 

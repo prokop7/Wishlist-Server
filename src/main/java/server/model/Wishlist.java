@@ -10,19 +10,6 @@ import java.util.List;
 
 @Entity
 public class Wishlist {
-
-    public int getWishlistOrder() {
-        return wishlistOrder;
-    }
-
-    public void setWishlistOrder(int wishlistOrder) {
-        this.wishlistOrder = wishlistOrder;
-    }
-
-    public void sortItems() {
-        items.sort(Comparator.comparingInt(Item::getItemOrder));
-    }
-
     public enum Visibility {
         PRIVATE(0),
         FRIENDS(1),
@@ -38,14 +25,13 @@ public class Wishlist {
         }
     }
 
-
     @Id
     @GeneratedValue(generator="wishlistIncrement")
     @GenericGenerator(name="wishlistIncrement", strategy="increment")
     private int id;
     private String name;
     private int wishlistOrder;
-
+    private boolean active;
     private Visibility visibility = Visibility.PUBLIC;
 
     @JsonIgnore
@@ -117,5 +103,25 @@ public class Wishlist {
     public void addItem(Item item) {
         items.add(item);
         item.setWishlist(this);
+    }
+
+    public int getWishlistOrder() {
+        return wishlistOrder;
+    }
+
+    public void setWishlistOrder(int wishlistOrder) {
+        this.wishlistOrder = wishlistOrder;
+    }
+
+    public void sortItems() {
+        items.sort(Comparator.comparingInt(Item::getItemOrder));
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

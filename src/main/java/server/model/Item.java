@@ -18,6 +18,7 @@ public class Item {
     private String price;
     private int state; // 0 - basic, 1 - taken, 2 - presented
     private int itemOrder;
+    private boolean active = true;
 
     @ManyToOne
     @JsonIgnore
@@ -104,5 +105,13 @@ public class Item {
 
     public void setItemOrder(int itemOrder) {
         this.itemOrder = itemOrder;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

@@ -55,7 +55,7 @@ public class ItemController {
         validateWishlistId(wishlistId);
         Item item = mapper.map(itemResource);
         item.setWishlist(wishlistRepository.getOne(wishlistId));
-        int order = itemRepository.countAllByWishlist_Id(wishlistId);
+        int order = itemRepository.countAllByWishlist_IdAndActiveIsTrue(wishlistId);
         item.setItemOrder(order);
         Item res = itemRepository.save(item);
         return itemRepository.findItemById(res.getId()).map(
@@ -103,10 +103,28 @@ public class ItemController {
     }
 
 
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{itemId}")
+    ResponseEntity<?> deleteItem(@PathVariable int userId,
+                                 @PathVariable int wishlistId,
+                                 @PathVariable int itemId) {
+        validateUserId(userId);
+        validateWishlistId(wishlistId);
+        validateItemId(itemId);
+        itemRepository.setActiveFalse(userId, wishlistId, itemId);
+        List<Item> items = itemRepository.getAll(userId, wishlistId).orElseThrow(
+                () -> new ItemNotFoundException(itemId));
+        for (int i = 0; i < items.size(); i++) {
+            items.get(i).setItemOrder(i);
+        }
+        itemRepository.save(items);
+        return ResponseEntity.ok().build();
+    }
+
+
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
     ResponseEntity<?> setItemsOrder(@PathVariable int userId,
-                              @PathVariable int wishlistId,
-                              @Valid @RequestBody List<ItemResource> itemResources) {
+                                    @PathVariable int wishlistId,
+                                    @Valid @RequestBody List<ItemResource> itemResources) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         List<Item> itemsToSave = new ArrayList<>();
@@ -119,7 +137,6 @@ public class ItemController {
         itemRepository.save(itemsToSave);
         return ResponseEntity.ok().build();
     }
-
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/state")

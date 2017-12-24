@@ -1,7 +1,9 @@
 package server.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.repository.query.Param;
 import server.model.Wishlist;
 
@@ -13,13 +15,13 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
 
     Optional<Wishlist> findById(int wishlistId);
 
-    List<Wishlist> getAllByAccount_IdOrderByWishlistOrder(int account_id);
+    List<Wishlist> getAllByAccount_IdAndActiveIsTrueOrderByWishlistOrder(int account_id);
 
-    List<Wishlist> getAllByAccount_IdAndVisibility(int account_id, Wishlist.Visibility visibility);
+    List<Wishlist> getAllByAccount_IdAndVisibilityAndActiveIsTrue(int account_id, Wishlist.Visibility visibility);
 
-    Optional<Wishlist> findByAccount_IdAndId(int userId, int wishlistId);
+    Optional<Wishlist> findByAccount_IdAndIdAndActiveIsTrue(int userId, int wishlistId);
 
-    int countAllByAccount_Id(int account_id);
+    int countAllByAccount_IdAndActiveIsTrue(int account_id);
 
     @Query(value = "SELECT DISTINCT " +
             "wishlist.id AS id, " +
@@ -29,14 +31,20 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
             "wishlist.wishlist_order AS wishlist_order " +
             "FROM wishlist " +
             "  LEFT JOIN wishlist_exclusions we ON wishlist.id = we.wishlist_id " +
-            "WHERE wishlist.account_id = :userId AND " +
+            "WHERE wishlist.account_id = :userId AND wishlist.active = TRUE AND " +
             "      ((we IS NULL AND wishlist.visibility = 2) OR " +
             "       (we.exclusions_id = :roleId AND wishlist.visibility = 0) OR " +
-            "       (we.exclusions_id != :roleId AND wishlist.visibility = 2)) ORDER BY wishlist_order", nativeQuery = true
-    )
+            "       (we.exclusions_id != :roleId AND wishlist.visibility = 2)) ORDER BY wishlist_order", nativeQuery = true)
     List<Wishlist> getAllWithVisibility(
             @Param("userId")
                     int userId,
             @Param("roleId")
                     int roleId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE wishlist " +
+            "SET active = FALSE " +
+            "WHERE wishlist.id = :wishlistId AND wishlist.account_id = :userId", nativeQuery = true)
+    void setActiveFalse(@Param("userId") int userId, @Param("wishlistId") int wishlistId);
 }
