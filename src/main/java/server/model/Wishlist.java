@@ -31,7 +31,7 @@ public class Wishlist {
     private int id;
     private String name;
     private int wishlistOrder;
-    private boolean active;
+    private boolean active = true;
     private Visibility visibility = Visibility.PUBLIC;
 
     @JsonIgnore
