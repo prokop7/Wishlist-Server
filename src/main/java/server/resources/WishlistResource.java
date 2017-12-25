@@ -29,7 +29,8 @@ public class WishlistResource {
         this.visibility = wishlist.getVisibility();
         this.wishlistOrder = wishlist.getWishlistOrder();
         for (Item item : wishlist.getItems())
-            if (item.isActive()) this.items.add(new ItemResource(item));
+            if (item.isActive())
+                this.items.add(new ItemResource(item));
     }
 
     public WishlistResource() {
