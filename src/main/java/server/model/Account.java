@@ -21,6 +21,8 @@ public class Account {
     private String facebookToken;
     private String photoLink;
     private boolean registered = false;
+    private String background = "#0079BF";
+    private boolean active = true;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Account> friends = new ArrayList<>();

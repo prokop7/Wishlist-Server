@@ -5,19 +5,12 @@ import server.model.Account;
 import server.model.Item;
 import server.model.Wishlist;
 
-import java.util.ArrayList;
-
 public class Mapper {
     public Mapper() {
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T map(Account account, Class<T> type) {
-        if (type.equals(AccountFullResource.class))
-            return (T) new AccountFullResource(account);
-        if (type.equals(AccountCommonResource.class))
-            return (T) new AccountCommonResource(account);
-        return null;
+    public AccountCommonResource map(Account account) {
+        return new AccountCommonResource(account);
     }
 
     public WishlistResource map(Wishlist wishlist) {

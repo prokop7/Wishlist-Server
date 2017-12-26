@@ -148,17 +148,6 @@ public class WishlistController {
         return ResponseEntity.ok().build();
     }
 
-
-    @RequestMapping(method = RequestMethod.GET, value = "/{wishlistId}")
-    WishlistResource getWishlist(@PathVariable int userId,
-                                 @PathVariable int wishlistId,
-                                 @RequestAttribute Claims claims) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        return mapper.map(wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).orElseThrow(
-                () -> new WishlistNotFoundException(wishlistId)));
-    }
-
     private void validateWishlistId(int wishlistId) {
         this.wishlistRepository.findById(wishlistId).orElseThrow(
                 () -> new WishlistNotFoundException(wishlistId));

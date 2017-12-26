@@ -33,24 +33,15 @@ public class AccountController {
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
     AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
         validateUserId(userId);
-        return mapper.map(this.accountRepository.getOne(userId), AccountCommonResource.class);
+        return mapper.map(this.accountRepository.getOne(userId));
     }
 
     private void validateUserId(int userId) {
         this.accountRepository.findAccountById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
-    
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
-    List<AccountCommonResource> getRegistredFriends(@PathVariable int userId) {
-        validateUserId(userId);
-        List<Account> friends = accountRepository.getRegisteredFriends(userId);
-        List<AccountCommonResource> friendsResource = new LinkedList<>();
-        friends.forEach(friend -> friendsResource.add(new AccountCommonResource(friend)));
-        return friendsResource;
-    }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/all_friends")
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
     List<AccountCommonResource> getAllFriends(@PathVariable int userId) {
         validateUserId(userId);
         List<Account> friends = accountRepository.getAllFriends(userId);

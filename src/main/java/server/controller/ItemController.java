@@ -69,16 +69,6 @@ public class ItemController {
                 }).orElse(ResponseEntity.noContent().build());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{itemId}")
-    ItemResource findItem(@PathVariable int userId,
-                          @PathVariable int wishlistId,
-                          @PathVariable int itemId) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        return mapper.map(itemRepository.findByIdAndWishlistIdAnAndAccountId(itemId, wishlistId, userId).orElseThrow(
-                () -> new WishlistNotFoundException(wishlistId)));
-    }
-
     @RequestMapping(method = RequestMethod.PUT, value = "/{itemId}")
     ResponseEntity<?> editItem(@PathVariable int userId,
                                @PathVariable int wishlistId,
