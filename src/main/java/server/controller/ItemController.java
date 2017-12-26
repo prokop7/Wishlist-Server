@@ -78,19 +78,21 @@ public class ItemController {
                 () -> new WishlistNotFoundException(wishlistId)));
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/take")
+    @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/state/")
     @ResponseStatus(value= HttpStatus.NOT_FOUND)
-    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class, ItemNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class, ItemNotFoundException.class, WrongStateException.class})
     ResponseEntity<?> takeItem(@PathVariable int userId,
                              @PathVariable int wishlistId,
-                             @PathVariable int itemId) {
+                             @PathVariable int itemId,
+                               @RequestParam int stateId) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
         validateItemId(itemId);
+        validateState(stateId);
         Item item = itemRepository.getOne(itemId);
         Account user = accountRepository.getOne(userId);
         item.setTaker(user);
-        item.setState(1);
+        item.setState(stateId);
         Item res = itemRepository.save(item);
         return itemRepository.findById(res.getId()).map(
                 account -> {
@@ -117,6 +119,11 @@ public class ItemController {
     private void validateItemId(int itemId) {
         this.itemRepository.findItemById(itemId).orElseThrow(
                 () -> new ItemNotFoundException(itemId));
+    }
+
+    private void validateState(int stateId) {
+        if (stateId != 0 && stateId != 1 && stateId != 2)
+            throw new WrongStateException(stateId);
     }
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
