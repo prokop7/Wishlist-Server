@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import server.controller.exceptions.UserNotFoundException;
-import server.controller.exceptions.ValidationError;
-import server.controller.exceptions.ValidationErrorBuilder;
 import server.controller.exceptions.WishlistNotFoundException;
 import server.model.Account;
 import server.model.Wishlist;
@@ -47,8 +44,10 @@ public class WishlistController {
         this.mapper = mapper;
         this.itemRepository = itemRepository;
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
     List<WishlistResource> getWishlists(@PathVariable int userId,
                                         @RequestAttribute Claims claims) {
         validateUserId(userId);
@@ -63,6 +62,8 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
     ResponseEntity<?> addWishlist(@PathVariable int userId,
                                   @Valid @RequestBody WishlistResource wishlistResource) {
         validateUserId(userId);
@@ -85,11 +86,14 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{wishlistId}")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class})
     WishlistResource getWishlist(@PathVariable int userId,
                                  @PathVariable int wishlistId,
                                  @RequestAttribute Claims claims) {
         validateUserId(userId);
         validateWishlistId(wishlistId);
+        System.out.println(claims.getId());
         return mapper.map(wishlistRepository.findByAccount_IdAndId(userId, wishlistId).orElseThrow(
                 () -> new WishlistNotFoundException(wishlistId)));
     }

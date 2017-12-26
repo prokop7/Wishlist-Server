@@ -16,7 +16,6 @@ import server.persistence.ItemRepository;
 import server.persistence.WishlistRepository;
 import server.resources.ItemResource;
 import server.resources.Mapper;
-import server.resources.MessageResource;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -46,6 +45,8 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class})
     ResponseEntity<?> addItem(@PathVariable int userId,
                               @PathVariable int wishlistId,
                               @Valid @RequestBody ItemResource itemResource) {
@@ -66,6 +67,8 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{itemId}")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class})
     ItemResource findItem(@PathVariable int userId,
                           @PathVariable int wishlistId,
                           @PathVariable int itemId) {
@@ -76,6 +79,8 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{itemId}/take")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler({UserNotFoundException.class, WishlistNotFoundException.class, ItemNotFoundException.class})
     ResponseEntity<?> takeItem(@PathVariable int userId,
                              @PathVariable int wishlistId,
                              @PathVariable int itemId) {
@@ -86,7 +91,6 @@ public class ItemController {
         Account user = accountRepository.getOne(userId);
         item.setTaker(user);
         item.setState(1);
-//        itemRepository.setTakenByItemId(itemId);
         Item res = itemRepository.save(item);
         return itemRepository.findById(res.getId()).map(
                 account -> {
@@ -115,8 +119,8 @@ public class ItemController {
                 () -> new ItemNotFoundException(itemId));
     }
 
-    @ExceptionHandler
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
     public ValidationError handleException(MethodArgumentNotValidException exception) {
         return createValidationError(exception);
     }

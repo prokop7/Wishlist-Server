@@ -11,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import server.controller.parsers.FriendsResponseParser;
@@ -48,7 +49,8 @@ public class RegistrationController {
         this.mapper = mapper;
     }
 
-    //TODO handle exceptions
+    @ResponseStatus(value=HttpStatus.NOT_FOUND)
+    @ExceptionHandler({ClientException.class, ApiException.class})
     @RequestMapping(method = RequestMethod.GET, value = "/registration")
     ResponseEntity<?> registerWithCode(@RequestParam String code) throws ClientException, ApiException {
         UserAuthResponse authResponse = vk.oauth()
@@ -81,6 +83,8 @@ public class RegistrationController {
         return ResponseEntity.ok(String.format("{\"accessToken\":\"%s\"}", jwtToken));
     }
 
+    @ResponseStatus(value=HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ClientException.class)
     private void setFriends(UserActor actor, Account account) throws ClientException {
         String friendsResponse = vk.friends()
                 .get(actor)

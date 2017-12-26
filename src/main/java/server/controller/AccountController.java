@@ -4,6 +4,7 @@ import com.vk.api.sdk.client.VkApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import server.controller.exceptions.UserNotFoundException;
 import server.model.Account;
@@ -43,6 +44,8 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
     AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
         validateUserId(userId);
         return mapper.map(this.accountRepository.getOne(userId), AccountCommonResource.class);
@@ -54,6 +57,8 @@ public class AccountController {
     }
     
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
     List<AccountCommonResource> getRegistredFriends(@PathVariable int userId) {
         validateUserId(userId);
         List<Account> friends = accountRepository.getRegisteredFriends(userId);
@@ -63,6 +68,8 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/all_friends")
+    @ResponseStatus(value= HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
     List<AccountCommonResource> getAllFriends(@PathVariable int userId) {
         validateUserId(userId);
         List<Account> friends = accountRepository.getAllFriends(userId);
