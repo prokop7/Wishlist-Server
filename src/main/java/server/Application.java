@@ -42,6 +42,11 @@ public class Application {
     }
 
     @Bean
+    public AuthorizationModule initAuthorization(){
+        return new AuthorizationModule();
+    }
+
+    @Bean
     public VkApiClient vkApiClient() {
         TransportClient transportClient = HttpTransportClient.getInstance();
         return new VkApiClient(transportClient, new Gson(), 3);

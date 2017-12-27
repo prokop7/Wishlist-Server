@@ -84,7 +84,7 @@ public class WishlistController {
         int nextOrder = wishlistRepository.countAllByAccount_IdAndActiveIsTrue(userId);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
-            exclusions.add(accountRepository.findAccountById(exclusion.getId()).orElseThrow(
+            exclusions.add(accountRepository.findAccountByIdAndRegisteredIsTrue(exclusion.getId()).orElseThrow(
                     () -> new UserNotFoundException(exclusion.getId())));
         }
         Wishlist wishlist = mapper.map(wishlistResource);
@@ -110,7 +110,7 @@ public class WishlistController {
         validateWishlistId(wishlistId);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
-            exclusions.add(accountRepository.findAccountById(exclusion.getId()).orElseThrow(
+            exclusions.add(accountRepository.findAccountByIdAndRegisteredIsTrue(exclusion.getId()).orElseThrow(
                     () -> new UserNotFoundException(exclusion.getId())));
         }
         Wishlist wishlist = wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).orElseThrow(
@@ -154,7 +154,7 @@ public class WishlistController {
     }
 
     private void validateUserId(int userId) {
-        this.accountRepository.findAccountById(userId).orElseThrow(
+        this.accountRepository.findAccountByIdAndRegisteredIsTrue(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
 }

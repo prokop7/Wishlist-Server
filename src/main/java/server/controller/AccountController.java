@@ -38,7 +38,7 @@ public class AccountController {
     }
 
     private void validateUserId(int userId) {
-        this.accountRepository.findAccountById(userId).orElseThrow(
+        this.accountRepository.findAccountByIdAndRegisteredIsTrue(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
 
