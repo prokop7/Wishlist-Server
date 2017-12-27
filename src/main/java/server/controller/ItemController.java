@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@PropertySource("classpath:server.properties")
+@PropertySource("classpath:server-${spring.profiles.active}.properties")
 @RequestMapping("/user/{userId}/wishlist/{wishlistId}/item")
 @CrossOrigin("*")
 public class ItemController {

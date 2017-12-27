@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import server.model.Account;
 import server.model.Item;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @SpringBootApplication
 @PropertySource("classpath:application.properties")
+@PropertySource("classpath:application-${spring.profiles.active}.properties")
 public class Application {
 
     public static void main(String[] args) {
@@ -50,31 +52,42 @@ public class Application {
         return new Mapper();
     }
 
-//    @Bean
-//    CommandLineRunner init(AccountRepository accountRepository,
-//                           WishlistRepository wishlistRepository,
-//                           ItemRepository itemRepository) {
-//        List<Account> list = new ArrayList<>();
-//        Arrays.asList("Anton Prokopev,Kamill,Lola,Liza".split(",")).forEach(s -> {
-//            Account account = accountRepository.save(new Account(s));
-//            list.add(account);
-//            account.setRegistered(true);
-//            Wishlist wishlist = new Wishlist("New Year " + s, account);
-//            wishlistRepository.save(wishlist);
-//            itemRepository.save(new Item("Book", wishlist));
-//            itemRepository.save(new Item("Car", wishlist));
-//        });
-//        list.get(0).getFriends().add(list.get(1));
-//        list.get(0).getFriends().add(list.get(2));
-//        list.get(0).getFriends().add(list.get(3));
-//        list.get(1).getFriends().add(list.get(0));
-//        list.get(2).getFriends().add(list.get(0));
-//        list.get(3).getFriends().add(list.get(0));
-//        list.get(3).getFriends().add(list.get(2));
-//        list.get(2).getFriends().add(list.get(3));
-//        list.get(0).setVkId(109317266);
-//        accountRepository.save(list);
-//        return (evt) -> list.toArray();
-//    }
+    @Bean
+    @Profile("test")
+    CommandLineRunner initTest(AccountRepository accountRepository,
+                           WishlistRepository wishlistRepository,
+                           ItemRepository itemRepository) {
+        List<Account> list = new ArrayList<>();
+        Arrays.asList("Anton Prokopev,Kamill,Lola,Liza".split(",")).forEach(s -> {
+            Account account = accountRepository.save(new Account(s));
+            list.add(account);
+            account.setRegistered(true);
+            Wishlist wishlist = new Wishlist("New Year " + s, account);
+            wishlistRepository.save(wishlist);
+            itemRepository.save(new Item("Book", wishlist));
+            itemRepository.save(new Item("Car", wishlist));
+        });
+        list.get(0).getFriends().add(list.get(1));
+        list.get(0).getFriends().add(list.get(2));
+        list.get(0).getFriends().add(list.get(3));
+        list.get(1).getFriends().add(list.get(0));
+        list.get(2).getFriends().add(list.get(0));
+        list.get(3).getFriends().add(list.get(0));
+        list.get(3).getFriends().add(list.get(2));
+        list.get(2).getFriends().add(list.get(3));
+        list.get(0).setVkId(109317266);
+        accountRepository.save(list);
+        return (evt) -> list.toArray();
+    }
+
+    @Bean
+    @Profile("dev")
+    CommandLineRunner initDev(AccountRepository accountRepository,
+                           WishlistRepository wishlistRepository,
+                           ItemRepository itemRepository) {
+        Account account = new Account("Anton Prokopev");
+        account.setVkId(109317266);
+        return (evt) -> accountRepository.save(account);
+    }
 
 }

@@ -14,7 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RestController
-@PropertySource({"classpath:server.properties", "classpath:oAuth.properties"})
+@PropertySource({"classpath:server-${spring.profiles.active}.properties",
+        "classpath:oAuth-${spring.profiles.active}.properties"})
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
 public class AccountController {

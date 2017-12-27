@@ -19,13 +19,13 @@ import server.model.Account;
 import server.persistence.AccountRepository;
 import server.resources.Mapper;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@PropertySource({"classpath:server.properties", "classpath:oAuth.properties"})
+@PropertySource({"classpath:server-${spring.profiles.active}.properties",
+        "classpath:oAuth-${spring.profiles.active}.properties"})
 public class RegistrationController {
     private final AccountRepository accountRepository;
     private final VkApiClient vk;
