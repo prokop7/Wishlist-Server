@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import server.controller.exceptions.UserNotFoundException;
-import server.controller.exceptions.WishlistNotFoundException;
+import server.AuthorizationModule;
+import server.AuthorizationObject;
 import server.model.Account;
 import server.model.Wishlist;
 import server.persistence.AccountRepository;
@@ -18,6 +18,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import static server.AuthorizationObject.*;
 
 @RestController
 @CrossOrigin("*")
@@ -42,9 +44,12 @@ public class WishlistController {
     @RequestMapping(method = RequestMethod.GET)
     List<WishlistResource> getWishlists(@PathVariable int userId,
                                         @RequestAttribute Claims claims) {
-        validateUserId(userId);
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PUBLIC);
+        AuthorizationModule.validate(ao);
         List<Wishlist> wishlists = new ArrayList<>();
-        int roleId = Integer.valueOf(claims.getSubject());
+        int roleId = Integer.parseInt(claims.getSubject());
         for (Wishlist w : wishlistRepository.getAllByAccount_IdAndActiveIsTrueOrderByWishlistOrder(userId)) {
             w.sortItems();
             boolean inExclusion = false;
@@ -79,13 +84,18 @@ public class WishlistController {
 
     @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> addWishlist(@PathVariable int userId,
-                                  @Valid @RequestBody WishlistResource wishlistResource) {
-        validateUserId(userId);
+                                  @Valid @RequestBody WishlistResource wishlistResource,
+                                  @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         int nextOrder = wishlistRepository.countAllByAccount_IdAndActiveIsTrue(userId);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
-            exclusions.add(accountRepository.findAccountByIdAndRegisteredIsTrue(exclusion.getId()).orElseThrow(
-                    () -> new UserNotFoundException(exclusion.getId())));
+            ao = new AuthorizationObject(claims);
+            ao.setUserId(exclusion.getId());
+            AuthorizationModule.validate(ao);
         }
         Wishlist wishlist = mapper.map(wishlistResource);
         wishlist.setWishlistOrder(nextOrder);
@@ -105,29 +115,36 @@ public class WishlistController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{wishlistId}")
     ResponseEntity<?> editWishlist(@PathVariable int userId,
                                    @PathVariable int wishlistId,
-                                   @Valid @RequestBody WishlistResource wishlistResource) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
+                                   @Valid @RequestBody WishlistResource wishlistResource,
+                                   @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         List<Account> exclusions = new ArrayList<>();
         for (AccountCommonResource exclusion : wishlistResource.getExclusions()) {
-            exclusions.add(accountRepository.findAccountByIdAndRegisteredIsTrue(exclusion.getId()).orElseThrow(
-                    () -> new UserNotFoundException(exclusion.getId())));
+            ao = new AuthorizationObject(claims);
+            ao.setUserId(exclusion.getId());
+            AuthorizationModule.validate(ao);
         }
-        Wishlist wishlist = wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).orElseThrow(
-                () -> new WishlistNotFoundException(wishlistId));
+        Wishlist wishlist = wishlistRepository.getOne(wishlistId);
         mapper.map(wishlistResource, wishlist);
         wishlist.setExclusions(exclusions);
-        Wishlist res = wishlistRepository.save(wishlist);
-        return wishlistRepository.findById(res.getId()).map(
-                account -> ResponseEntity.ok(res)).orElse(ResponseEntity.noContent().build());
+        wishlistRepository.save(wishlist);
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{wishlistId}")
     ResponseEntity<?> deleteWishlist(@PathVariable int userId,
-                                     @PathVariable int wishlistId) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        wishlistRepository.setActiveFalse(userId, wishlistId);
+                                     @PathVariable int wishlistId,
+                                     @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
+        wishlistRepository.setActiveFalse(wishlistId);
         List<Wishlist> wishlists = wishlistRepository.getAllByAccount_IdAndActiveIsTrueOrderByWishlistOrder(userId);
         for (int i = 0; i < wishlists.size(); i++)
             wishlists.get(i).setWishlistOrder(i);
@@ -137,24 +154,18 @@ public class WishlistController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
     ResponseEntity<?> editWishlistOrder(@PathVariable int userId,
-                                        @Valid @RequestBody List<WishlistResource> list) {
-        validateUserId(userId);
+                                        @Valid @RequestBody List<WishlistResource> list,
+                                        @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         for (WishlistResource resource : list) {
-            validateWishlistId(resource.getId());
+            AuthorizationModule.validateWishlists(userId, resource.getId());
             Wishlist wishlist = wishlistRepository.getOne(resource.getId());
             wishlist.setWishlistOrder(resource.getWishlistOrder());
             wishlistRepository.save(wishlist);
         }
         return ResponseEntity.ok().build();
-    }
-
-    private void validateWishlistId(int wishlistId) {
-        this.wishlistRepository.findById(wishlistId).orElseThrow(
-                () -> new WishlistNotFoundException(wishlistId));
-    }
-
-    private void validateUserId(int userId) {
-        this.accountRepository.findAccountByIdAndRegisteredIsTrue(userId).orElseThrow(
-                () -> new UserNotFoundException(userId));
     }
 }

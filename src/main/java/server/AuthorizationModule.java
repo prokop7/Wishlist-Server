@@ -1,6 +1,5 @@
 package server;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import server.controller.exceptions.AccessDeniedException;
 import server.controller.exceptions.ItemNotFoundException;
 import server.controller.exceptions.UserNotFoundException;
@@ -13,33 +12,31 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import static server.AuthorizationObject.AccessType.*;
 
 public class AuthorizationModule {
-    @Autowired
     private static AccountRepository accountRepository;
-    @Autowired
     private static WishlistRepository wishlistRepository;
-    @Autowired
     private static ItemRepository itemRepository;
 
+
     public static void validate(AuthorizationObject ao) {
-        int userId = Integer.parseInt(ao.getClaims().SUBJECT);
+        int userId = Integer.parseInt(ao.getClaims().getSubject());
         if (ao.getUserId() == null)
             throw new NotImplementedException();
-        if (userExists(ao.getUserId()))
+        if (!userExists(ao.getUserId()))
             throw new UserNotFoundException(ao.getUserId());
 
         if (ao.getAccessType() == PRIVATE)
             validatePrivate(userId, ao.getUserId(), ao.getWishlistId(), ao.getItemId());
-        else if (ao.getAccessType() == FRIENDS_ONLY)
+        else if (ao.getAccessType() == FRIENDS_ONLY || ao.getAccessType() == PUBLIC)
             validateFriendsOnly(userId, ao.getUserId(), ao.getWishlistId(), ao.getItemId());
-        else if (ao.getAccessType() == PUBLIC)
-            validateWishlistsAndItems(ao.getUserId(), ao.getWishlistId(), ao.getItemId());
+//        else if (ao.getAccessType() == PUBLIC)
+//            validateWishlistsAndItems(ao.getUserId(), ao.getWishlistId(), ao.getItemId());
     }
 
     private static void validateFriendsOnly(int userId,
                                                int requestedUserId,
                                                Integer requestedWishlistId,
                                                Integer requestedItemId) {
-        if (!isFriend(userId, requestedUserId))
+        if (userId != requestedUserId && !isFriend(userId, requestedUserId))
             throw new AccessDeniedException();
         validateWishlistsAndItems(requestedUserId, requestedWishlistId, requestedItemId);
     }
@@ -52,7 +49,11 @@ public class AuthorizationModule {
         validateWishlistsAndItems(requestedUserId, requestedWishlistId, requestedItemId);
     }
 
-    private static void validateWishlistsAndItems(int userId, Integer wishlistId, Integer itemId) {
+    public static void validateWishlists(int userId, int wishlistId) {
+        if (!isBelong(userId, wishlistId)) throw new WishlistNotFoundException(wishlistId);
+    }
+
+    public static void validateWishlistsAndItems(int userId, Integer wishlistId, Integer itemId) {
         if (wishlistId == null)
             return;
         if (itemId == null)
@@ -80,4 +81,15 @@ public class AuthorizationModule {
         return wishlistRepository.findByAccount_IdAndIdAndActiveIsTrue(userId, wishlistId).isPresent();
     }
 
+    public static void setAccountRepository(AccountRepository accountRepository) {
+        AuthorizationModule.accountRepository = accountRepository;
+    }
+
+    public static void setWishlistRepository(WishlistRepository wishlistRepository) {
+        AuthorizationModule.wishlistRepository = wishlistRepository;
+    }
+
+    public static void setItemRepository(ItemRepository itemRepository) {
+        AuthorizationModule.itemRepository = itemRepository;
+    }
 }
