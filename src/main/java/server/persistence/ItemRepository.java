@@ -51,14 +51,18 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     @Transactional
     @Query(value = "UPDATE item " +
             "SET active = FALSE " +
-            "WHERE item.id = :itemId AND " +
-            "      item.wishlist_id = :wishlistId AND " +
-            "      EXISTS(SELECT wishlist " +
-            "             FROM wishlist " +
-            "               JOIN account " +
-            "                 ON wishlist.account_id = account.id " +
-            "             WHERE account_id = :userId)", nativeQuery = true)
-    void setActiveFalse(@Param("userId") int userId,
-                        @Param("wishlistId") int wishlistId,
-                        @Param("itemId") int itemId);
+            "WHERE item.id = :itemId", nativeQuery = true)
+    void setActiveFalse(@Param("itemId") int itemId);
+
+    @Query(value = "SELECT i.* FROM Item i " +
+            "  JOIN wishlist ON i.wishlist_id = wishlist.id " +
+            "  JOIN account ON wishlist.account_id = account.id " +
+            "WHERE wishlist.id = :wishlistId AND " +
+            "account.id = :userId AND " +
+            "i.active = TRUE AND " +
+            "wishlist.active = TRUE AND " +
+            "i.id = :itemId", nativeQuery = true)
+    Optional<Item> findByIdAndUserAndWishlist(@Param("userId") int userId,
+                                              @Param("wishlistId") int wishlistId,
+                                              @Param("itemId") int itemId);
 }

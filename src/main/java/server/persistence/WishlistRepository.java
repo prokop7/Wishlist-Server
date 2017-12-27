@@ -45,6 +45,6 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
     @Transactional
     @Query(value = "UPDATE wishlist " +
             "SET active = FALSE " +
-            "WHERE wishlist.id = :wishlistId AND wishlist.account_id = :userId", nativeQuery = true)
-    void setActiveFalse(@Param("userId") int userId, @Param("wishlistId") int wishlistId);
+            "WHERE wishlist.id = :wishlistId", nativeQuery = true)
+    void setActiveFalse(@Param("wishlistId") int wishlistId);
 }

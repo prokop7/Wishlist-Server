@@ -1,10 +1,13 @@
 package server.controller;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.*;
-import server.controller.exceptions.UserNotFoundException;
+import server.AuthorizationModule;
+import server.AuthorizationObject;
+import server.AuthorizationObject.AccessType;
 import server.model.Account;
 import server.persistence.AccountRepository;
 import server.resources.AccountCommonResource;
@@ -32,19 +35,20 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Object claims) {
-        validateUserId(userId);
+    AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         return mapper.map(this.accountRepository.getOne(userId));
     }
 
-    private void validateUserId(int userId) {
-        this.accountRepository.findAccountById(userId).orElseThrow(
-                () -> new UserNotFoundException(userId));
-    }
-
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")
-    List<AccountCommonResource> getAllFriends(@PathVariable int userId) {
-        validateUserId(userId);
+    List<AccountCommonResource> getAllFriends(@PathVariable int userId, @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         List<Account> friends = accountRepository.getAllFriends(userId);
         List<AccountCommonResource> friendsResource = new LinkedList<>();
         friends.forEach(friend -> friendsResource.add(new AccountCommonResource(friend)));

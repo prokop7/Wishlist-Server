@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import server.AuthorizationModule;
+import server.AuthorizationObject;
 import server.controller.exceptions.*;
 import server.model.Account;
 import server.model.Item;
@@ -22,6 +24,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import static server.AuthorizationObject.*;
 
 @RestController
 @PropertySource("classpath:server-${spring.profiles.active}.properties")
@@ -50,9 +54,13 @@ public class ItemController {
     @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> addItem(@PathVariable int userId,
                               @PathVariable int wishlistId,
-                              @Valid @RequestBody ItemResource itemResource) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
+                              @Valid @RequestBody ItemResource itemResource,
+                              @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         Item item = mapper.map(itemResource);
         item.setWishlist(wishlistRepository.getOne(wishlistId));
         int order = itemRepository.countAllByWishlist_IdAndActiveIsTrue(wishlistId);
@@ -73,10 +81,14 @@ public class ItemController {
     ResponseEntity<?> editItem(@PathVariable int userId,
                                @PathVariable int wishlistId,
                                @PathVariable int itemId,
-                               @Valid @RequestBody ItemResource itemResource) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        validateItemId(itemId);
+                               @Valid @RequestBody ItemResource itemResource,
+                               @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setItemId(itemId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         Item item = this.itemRepository.getOne(itemId);
         mapper.map(itemResource, item);
         Item res = this.itemRepository.save(item);
@@ -96,11 +108,15 @@ public class ItemController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/{itemId}")
     ResponseEntity<?> deleteItem(@PathVariable int userId,
                                  @PathVariable int wishlistId,
-                                 @PathVariable int itemId) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        validateItemId(itemId);
-        itemRepository.setActiveFalse(userId, wishlistId, itemId);
+                                 @PathVariable int itemId,
+                                 @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setItemId(itemId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
+        itemRepository.setActiveFalse(itemId);
         List<Item> items = itemRepository.getAll(userId, wishlistId).orElseThrow(
                 () -> new ItemNotFoundException(itemId));
         for (int i = 0; i < items.size(); i++) {
@@ -114,12 +130,16 @@ public class ItemController {
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
     ResponseEntity<?> setItemsOrder(@PathVariable int userId,
                                     @PathVariable int wishlistId,
-                                    @Valid @RequestBody List<ItemResource> itemResources) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
+                                    @Valid @RequestBody List<ItemResource> itemResources,
+                                    @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
         List<Item> itemsToSave = new ArrayList<>();
         for (ItemResource resource : itemResources) {
-            validateItemId(resource.getId());
+            AuthorizationModule.validateWishlistsAndItems(userId, wishlistId, resource.getId());
             Item item = itemRepository.getOne(resource.getId());
             item.setItemOrder(resource.getItemOrder());
             itemsToSave.add(item);
@@ -135,12 +155,14 @@ public class ItemController {
                                @PathVariable int itemId,
                                @RequestBody int state,
                                @RequestAttribute Claims claims) {
-        validateUserId(userId);
-        validateWishlistId(wishlistId);
-        validateItemId(itemId);
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setWishlistId(wishlistId);
+        ao.setItemId(itemId);
+        ao.setAccessType(AccessType.FRIENDS_ONLY);
+        AuthorizationModule.validate(ao);
         int roleId = Integer.valueOf(claims.getSubject());
-        Item item = itemRepository.findByIdAndWishlistIdAnAndAccountId(itemId, wishlistId, userId).orElseThrow(
-                () -> new ItemNotFoundException(userId));
+        Item item = itemRepository.getOne(itemId);
         Account user = accountRepository.getOne(roleId);
         if (roleId != userId)
             item.setTaker(user);
@@ -151,22 +173,6 @@ public class ItemController {
         Item res = itemRepository.save(item);
         return itemRepository.findById(res.getId()).map(
                 account -> ResponseEntity.ok().build()).orElse(ResponseEntity.noContent().build());
-    }
-
-
-    private void validateWishlistId(int wishlistId) {
-        this.wishlistRepository.findById(wishlistId).orElseThrow(
-                () -> new WishlistNotFoundException(wishlistId));
-    }
-
-    private void validateUserId(int userId) {
-        this.accountRepository.findAccountById(userId).orElseThrow(
-                () -> new UserNotFoundException(userId));
-    }
-
-    private void validateItemId(int itemId) {
-        this.itemRepository.findItemById(itemId).orElseThrow(
-                () -> new ItemNotFoundException(itemId));
     }
 
     @ExceptionHandler

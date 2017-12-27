@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    Optional<Account> findAccountById(int id);
+    Optional<Account> findAccountByIdAndRegisteredIsTrue(int id);
+
+    @Query(value = "SELECT exists(SELECT * " +
+            "              FROM account_friends " +
+            "              WHERE account_id = :requestedId AND friends_id = :id)", nativeQuery = true)
+    boolean isFriend(@Param("id") int id, @Param("requestedId") int requestedId);
 
     @Override
     List<Account> findAll();
