@@ -9,8 +9,8 @@ public class Mapper {
     public Mapper() {
     }
 
-    public AccountCommonResource map(Account account) {
-        return new AccountCommonResource(account);
+    public AccountFullResource map(Account account) {
+        return new AccountFullResource(account);
     }
 
     public WishlistResource map(Wishlist wishlist) {
