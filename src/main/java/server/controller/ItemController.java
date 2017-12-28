@@ -11,7 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import server.AuthorizationModule;
 import server.AuthorizationObject;
-import server.controller.exceptions.*;
+import server.controller.exceptions.ItemNotFoundException;
+import server.controller.exceptions.ValidationError;
+import server.controller.exceptions.ValidationErrorBuilder;
 import server.model.Account;
 import server.model.Item;
 import server.persistence.AccountRepository;
@@ -21,11 +23,10 @@ import server.resources.ItemResource;
 import server.resources.Mapper;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static server.AuthorizationObject.*;
+import static server.AuthorizationObject.AccessType;
 
 @RestController
 @PropertySource("classpath:server-${spring.profiles.active}.properties")
@@ -52,10 +53,10 @@ public class ItemController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addItem(@PathVariable int userId,
-                              @PathVariable int wishlistId,
-                              @Valid @RequestBody ItemResource itemResource,
-                              @RequestAttribute Claims claims) {
+    ItemResource addItem(@PathVariable int userId,
+                         @PathVariable int wishlistId,
+                         @Valid @RequestBody ItemResource itemResource,
+                         @RequestAttribute Claims claims) {
         AuthorizationObject ao = new AuthorizationObject(claims);
         ao.setUserId(userId);
         ao.setWishlistId(wishlistId);
@@ -66,23 +67,15 @@ public class ItemController {
         int order = itemRepository.countAllByWishlist_IdAndActiveIsTrue(wishlistId);
         item.setItemOrder(order);
         Item res = itemRepository.save(item);
-        return itemRepository.findItemById(res.getId()).map(
-                account -> {
-                    URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
-                            serverURI,
-                            userId,
-                            wishlistId,
-                            res.getId()));
-                    return ResponseEntity.created(loc).build();
-                }).orElse(ResponseEntity.noContent().build());
+        return mapper.map(res);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{itemId}")
     ResponseEntity<?> editItem(@PathVariable int userId,
-                               @PathVariable int wishlistId,
-                               @PathVariable int itemId,
-                               @Valid @RequestBody ItemResource itemResource,
-                               @RequestAttribute Claims claims) {
+                          @PathVariable int wishlistId,
+                          @PathVariable int itemId,
+                          @Valid @RequestBody ItemResource itemResource,
+                          @RequestAttribute Claims claims) {
         AuthorizationObject ao = new AuthorizationObject(claims);
         ao.setUserId(userId);
         ao.setWishlistId(wishlistId);
@@ -92,16 +85,7 @@ public class ItemController {
         Item item = this.itemRepository.getOne(itemId);
         mapper.map(itemResource, item);
         Item res = this.itemRepository.save(item);
-
-        return itemRepository.findItemById(res.getId()).map(
-                account -> {
-                    URI loc = URI.create(String.format("%s/user/%d/wishlist/%d/item/%d",
-                            serverURI,
-                            userId,
-                            wishlistId,
-                            res.getId()));
-                    return ResponseEntity.created(loc).build();
-                }).orElse(ResponseEntity.noContent().build());
+        return ResponseEntity.ok().build();
     }
 
 

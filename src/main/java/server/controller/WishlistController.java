@@ -14,12 +14,11 @@ import server.persistence.WishlistRepository;
 import server.resources.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static server.AuthorizationObject.*;
+import static server.AuthorizationObject.AccessType;
 
 @RestController
 @CrossOrigin("*")
@@ -83,7 +82,7 @@ public class WishlistController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addWishlist(@PathVariable int userId,
+    WishlistResource addWishlist(@PathVariable int userId,
                                   @Valid @RequestBody WishlistResource wishlistResource,
                                   @RequestAttribute Claims claims) {
         AuthorizationObject ao = new AuthorizationObject(claims);
@@ -102,14 +101,7 @@ public class WishlistController {
         wishlist.setAccount(accountRepository.getOne(userId));
         wishlist.setExclusions(exclusions);
         Wishlist res = wishlistRepository.save(wishlist);
-        return wishlistRepository.findById(res.getId()).map(
-                account -> {
-                    URI loc = URI.create(String.format("%s/user/%d/wishlist/%d",
-                            serverURI,
-                            userId,
-                            res.getId()));
-                    return ResponseEntity.created(loc).build();
-                }).orElse(ResponseEntity.noContent().build());
+        return mapper.map(res);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{wishlistId}")
