@@ -20,6 +20,7 @@ public class Mapper {
     public Account map(UserXtrCounters info, Account account) {
         if (account == null)
             account = new Account(String.format("%s %s", info.getFirstName(), info.getLastName()));
+        account.setUsername(String.format("%s %s", info.getFirstName(), info.getLastName()));
         account.setVkId(info.getId());
         account.setPhotoLink(info.getPhoto100());
         account.setRegistered(true);
