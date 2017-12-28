@@ -9,8 +9,8 @@ public class Mapper {
     public Mapper() {
     }
 
-    public AccountCommonResource map(Account account) {
-        return new AccountCommonResource(account);
+    public AccountFullResource map(Account account) {
+        return new AccountFullResource(account);
     }
 
     public WishlistResource map(Wishlist wishlist) {
@@ -20,6 +20,7 @@ public class Mapper {
     public Account map(UserXtrCounters info, Account account) {
         if (account == null)
             account = new Account(String.format("%s %s", info.getFirstName(), info.getLastName()));
+        account.setUsername(String.format("%s %s", info.getFirstName(), info.getLastName()));
         account.setVkId(info.getId());
         account.setPhotoLink(info.getPhoto100());
         account.setRegistered(true);

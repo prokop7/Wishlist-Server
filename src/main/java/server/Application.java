@@ -109,15 +109,4 @@ public class Application {
         wishlistRepository.save(privateWithExcl);
         return (evt) -> list.toArray();
     }
-
-    @Bean
-    @Profile("dev")
-    CommandLineRunner initDev(AccountRepository accountRepository,
-                           WishlistRepository wishlistRepository,
-                           ItemRepository itemRepository) {
-        Account account = new Account("Anton Prokopev");
-        account.setVkId(109317266);
-        return (evt) -> accountRepository.save(account);
-    }
-
 }

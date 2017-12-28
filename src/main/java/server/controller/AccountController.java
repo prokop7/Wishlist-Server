@@ -1,9 +1,11 @@
 package server.controller;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import server.AuthorizationModule;
 import server.AuthorizationObject;
@@ -11,6 +13,7 @@ import server.AuthorizationObject.AccessType;
 import server.model.Account;
 import server.persistence.AccountRepository;
 import server.resources.AccountCommonResource;
+import server.resources.AccountFullResource;
 import server.resources.Mapper;
 
 import java.util.LinkedList;
@@ -35,12 +38,30 @@ public class AccountController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    AccountCommonResource getAccounts(@PathVariable int userId, @RequestAttribute Claims claims) {
+    AccountFullResource getAccounts(@PathVariable int userId, @RequestAttribute Claims claims) {
         AuthorizationObject ao = new AuthorizationObject(claims);
         ao.setUserId(userId);
         ao.setAccessType(AccessType.PRIVATE);
         AuthorizationModule.validate(ao);
         return mapper.map(this.accountRepository.getOne(userId));
+    }
+
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{userId}")
+    ResponseEntity<?> editBackground(@PathVariable int userId,
+                                  @RequestBody TextNode background,
+                                  @RequestAttribute Claims claims) {
+        AuthorizationObject ao = new AuthorizationObject(claims);
+        ao.setUserId(userId);
+        ao.setAccessType(AccessType.PRIVATE);
+        AuthorizationModule.validate(ao);
+
+        //TODO replace with UPDATE query
+        Account account = accountRepository.getOne(userId);
+        account.setBackground(background.asText());
+        accountRepository.save(account);
+
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/friends")

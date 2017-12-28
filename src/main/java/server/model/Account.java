@@ -119,4 +119,12 @@ public class Account {
         items.add(item);
         item.setTaker(this);
     }
+
+    public String getBackground() {
+        return background;
+    }
+
+    public void setBackground(String background) {
+        this.background = background;
+    }
 }
