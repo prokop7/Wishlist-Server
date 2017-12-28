@@ -21,10 +21,12 @@ import server.AuthorizationObject;
 import server.controller.parsers.FriendsResponseParser;
 import server.model.Account;
 import server.persistence.AccountRepository;
+import server.resources.AccountCommonResource;
 import server.resources.Mapper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -95,7 +97,7 @@ public class RegistrationController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/user/{userId}/friends/refresh")
-    ResponseEntity<?> refreshFriends(@PathVariable int userId,
+    List<AccountCommonResource> refreshFriends(@PathVariable int userId,
                                      @RequestParam String locale,
                                      @RequestAttribute Claims claims) throws ClientException, ApiException {
         AuthorizationObject ao = new AuthorizationObject(claims);
@@ -105,8 +107,11 @@ public class RegistrationController {
         Lang lang = locale.equals("ru") ? Lang.RU : Lang.EN;
         Account account = accountRepository.getOne(userId);
         UserActor actor = new UserActor(account.getVkId(), account.getVkToken());
-        updateAccount(actor, lang);
-        return ResponseEntity.ok().build();
+        setFriends(actor, account, lang);
+        List<Account> friends = accountRepository.getAllFriends(userId);
+        List<AccountCommonResource> friendsResource = new LinkedList<>();
+        friends.forEach(friend -> friendsResource.add(new AccountCommonResource(friend)));
+        return friendsResource;
     }
 
     private void setFriends(UserActor actor, Account account, Lang lang) throws ClientException {
