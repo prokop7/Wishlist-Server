@@ -64,10 +64,11 @@ public class RegistrationController {
                 .lang(lang)
                 .execute();
         Account dbAccount = accountRepository.getAccountByVkId(actor.getId());
+        boolean isRegistered = dbAccount != null && dbAccount.isRegistered();
         Account account = mapper.map(info.get(0), dbAccount);
         account.setVkToken(actor.getAccessToken());
         accountRepository.save(account);
-        if (dbAccount == null)
+        if (!isRegistered)
             setFriends(actor, account, lang);
 
         return account;
@@ -96,10 +97,10 @@ public class RegistrationController {
         return ResponseEntity.ok(String.format("{\"accessToken\":\"%s\"}", jwtToken));
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/user/{userId}/friends/refresh")
+    @RequestMapping(method = RequestMethod.GET, value = "/user/{userId}/friends/refresh")
     List<AccountCommonResource> refreshFriends(@PathVariable int userId,
-                                     @RequestParam String locale,
-                                     @RequestAttribute Claims claims) throws ClientException, ApiException {
+                                               @RequestParam String locale,
+                                               @RequestAttribute Claims claims) throws ClientException, ApiException {
         AuthorizationObject ao = new AuthorizationObject(claims);
         ao.setUserId(userId);
         ao.setAccessType(AuthorizationObject.AccessType.PRIVATE);

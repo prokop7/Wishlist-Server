@@ -11,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import server.AuthorizationModule;
 import server.AuthorizationObject;
-import server.controller.exceptions.ItemNotFoundException;
 import server.controller.exceptions.ValidationError;
 import server.controller.exceptions.ValidationErrorBuilder;
 import server.model.Account;
@@ -101,8 +100,7 @@ public class ItemController {
         ao.setAccessType(AccessType.PRIVATE);
         AuthorizationModule.validate(ao);
         itemRepository.setActiveFalse(itemId);
-        List<Item> items = itemRepository.getAll(userId, wishlistId).orElseThrow(
-                () -> new ItemNotFoundException(itemId));
+        List<Item> items = itemRepository.getAll(userId, wishlistId);
         for (int i = 0; i < items.size(); i++) {
             items.get(i).setItemOrder(i);
         }

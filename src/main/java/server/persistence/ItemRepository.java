@@ -35,8 +35,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
             "i.active = TRUE AND " +
             "wishlist.active = TRUE " +
             "ORDER BY i.item_order", nativeQuery = true)
-    Optional<List<Item>> getAll(@Param("userId") int userId,
-                                @Param("wishlistId") int wishlistId);
+    List<Item> getAll(@Param("userId") int userId,
+                      @Param("wishlistId") int wishlistId);
 
     int countAllByWishlist_IdAndActiveIsTrue(int wishlist_id);
 
